@@ -28,7 +28,7 @@ const QuoteList: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this quote?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce devis ?')) {
       try {
         await quotesAPI.delete(id);
         fetchQuotes();
@@ -45,6 +45,13 @@ const QuoteList: React.FC = () => {
       accepted: 'bg-green-600 text-green-100',
       refused: 'bg-red-600 text-red-100',
     };
+    
+    const statusLabels = {
+      draft: 'Brouillon',
+      sent: 'Envoyé',
+      accepted: 'Accepté',
+      refused: 'Refusé',
+    };
 
     return (
       <span
@@ -52,7 +59,7 @@ const QuoteList: React.FC = () => {
           statusClasses[status as keyof typeof statusClasses]
         }`}
       >
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {statusLabels[status as keyof typeof statusLabels] || status}
       </span>
     );
   };
@@ -69,9 +76,9 @@ const QuoteList: React.FC = () => {
     <div className="px-4 py-6 sm:px-0">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-2xl font-bold text-white">Quotes</h1>
+          <h1 className="text-2xl font-bold text-white">Devis</h1>
           <p className="mt-2 text-sm text-gray-300">
-            A list of all quotes including their status, client, and total amount.
+            Liste de tous les devis avec leur statut, client et montant total.
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -82,7 +89,7 @@ const QuoteList: React.FC = () => {
             style={{ backgroundColor: '#D7FEFA' }}
           >
             <PlusIcon className="h-4 w-4 mr-2" />
-            Create Quote
+            Créer un devis
           </button>
         </div>
       </div>
@@ -93,16 +100,16 @@ const QuoteList: React.FC = () => {
             <thead className="bg-gray-700">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Quote Number
+                  N° de devis
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Client
+                  Actions
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Date
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Status
+                  Statut
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Total TTC
@@ -132,26 +139,26 @@ const QuoteList: React.FC = () => {
                     {getStatusBadge(quote.statut)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">
-                    €{quote.total_ttc.toFixed(2)}
+                    {(Number(quote.total_ttc) || 0).toFixed(2)} MAD
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       className="text-green-400 hover:text-green-300 mr-4 transition-colors"
-                      title="View"
+                      title="Voir"
                     >
                       <EyeIcon className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => navigate(`/quotes/edit/${quote.id}`)}
                       className="text-accent hover:text-accent/80 mr-4 transition-colors"
-                      title="Edit"
+                      title="Éditer"
                     >
                       <PencilIcon className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(quote.id)}
                       className="text-red-400 hover:text-red-300 transition-colors"
-                      title="Delete"
+                      title="Supprimer"
                     >
                       <TrashIcon className="h-4 w-4" />
                     </button>
@@ -165,23 +172,23 @@ const QuoteList: React.FC = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="mt-6 flex justify-between items-center">
+        <div className="flex justify-between items-center mt-4">
           <button
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 text-sm font-medium text-white bg-secondary border border-gray-600 rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            Previous
+            Précédent
           </button>
           <span className="text-sm text-gray-300">
-            Page {currentPage} of {totalPages}
+            Page {currentPage} sur {totalPages}
           </span>
           <button
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 text-sm font-medium text-white bg-secondary border border-gray-600 rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            Next
+            Suivant
           </button>
         </div>
       )}

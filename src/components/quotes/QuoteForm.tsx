@@ -4,13 +4,16 @@ import { quotesAPI, clientsAPI, productsAPI } from '../../services/api';
 import type { Quote, Client, Product } from '../../types';
 import { ArrowLeftIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 
+// Define the API base URL
+const API_BASE_URL = 'http://localhost:8000/api';
+
 interface QuoteFormData {
   numero_devis: string;
   client_id: string;
   date_devis: string;
   date_validite: string;
   statut: 'draft' | 'sent' | 'accepted' | 'refused';
-  tva: string;
+  tva?: number; // Optional TVA field that will be removed before sending to API
 }
 
 interface QuoteDetail {
@@ -30,7 +33,7 @@ const QuoteForm: React.FC = () => {
     date_devis: new Date().toISOString().split('T')[0],
     date_validite: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     statut: 'draft',
-    tva: '20',
+    tva: 0, // Default TVA value that will be removed before sending to API
   });
   const [details, setDetails] = useState<QuoteDetail[]>([
     { product_id: '', quantite: '', prix_unitaire: '' }
@@ -53,8 +56,11 @@ const QuoteForm: React.FC = () => {
 
   const fetchClients = async () => {
     try {
+      console.log('Fetching clients...');
       const response = await clientsAPI.getAll(1);
+      console.log('Clients response:', response.data);
       setClients(response.data.data);
+      console.log('Available clients:', response.data.data);
     } catch (error) {
       console.error('Error fetching clients:', error);
     }
@@ -89,7 +95,7 @@ const QuoteForm: React.FC = () => {
         date_devis: quote.date_devis.split('T')[0],
         date_validite: quote.date_validite.split('T')[0],
         statut: quote.statut,
-        tva: quote.tva.toString(),
+        tva: quote.tva || 0,
       });
       if (quote.details && quote.details.length > 0) {
         setDetails(quote.details.map((detail: any) => ({
@@ -109,31 +115,27 @@ const QuoteForm: React.FC = () => {
     const errors: Record<string, string> = {};
 
     if (!formData.numero_devis.trim()) {
-      errors.numero_devis = 'Quote number is required';
+      errors.numero_devis = 'Le numéro de devis est requis';
     }
     if (!formData.client_id) {
-      errors.client_id = 'Client is required';
+      errors.client_id = 'Le client est requis';
     }
     if (!formData.date_devis) {
-      errors.date_devis = 'Quote date is required';
+      errors.date_devis = 'La date du devis est requise';
     }
     if (!formData.date_validite) {
-      errors.date_validite = 'Validity date is required';
+      errors.date_validite = 'La date de validité est requise';
     }
-    if (Number(formData.tva) < 0 || Number(formData.tva) > 100) {
-      errors.tva = 'VAT must be between 0 and 100';
-    }
-
     // Validate details
     details.forEach((detail, index) => {
       if (!detail.product_id) {
-        errors[`detail_${index}_product`] = 'Product is required';
+        errors[`detail_${index}_product`] = 'Le produit est requis';
       }
       if (!detail.quantite || Number(detail.quantite) <= 0) {
-        errors[`detail_${index}_quantite`] = 'Valid quantity is required';
+        errors[`detail_${index}_quantite`] = 'Une quantité valide est requise';
       }
       if (!detail.prix_unitaire || Number(detail.prix_unitaire) <= 0) {
-        errors[`detail_${index}_prix`] = 'Valid price is required';
+        errors[`detail_${index}_prix`] = 'Un prix unitaire valide est requis';
       }
     });
 
@@ -144,37 +146,153 @@ const QuoteForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       setLoading(true);
-      setError(null);
-
+      // Create the final quote data object with only the fields we want to send
       const quoteData = {
         numero_devis: formData.numero_devis,
         client_id: Number(formData.client_id),
         date_devis: formData.date_devis,
         date_validite: formData.date_validite,
         statut: formData.statut,
-        tva: Number(formData.tva),
-        details: details.map(detail => ({
+        // Note: TVA is intentionally omitted as it's not in the database
+        products: details.map(detail => ({
           product_id: Number(detail.product_id),
           quantite: Number(detail.quantite),
-          prix_unitaire: Number(detail.prix_unitaire),
-        })),
-      };
+          prix_unitaire: Number(detail.prix_unitaire)
+        }))
+      } as const; // Use const assertion to ensure type safety
 
-      if (isEdit && id) {
-        await quotesAPI.update(Number(id), quoteData);
-      } else {
-        await quotesAPI.create(quoteData);
+      // Log the data being sent to the API
+      console.log('=== QUOTE DATA TO BE SENT ===');
+      console.log('Form data:', formData);
+      console.log('Form data keys:', Object.keys(formData));
+      console.log('Quote data to send:', quoteData);
+      console.log('Quote data keys:', Object.keys(quoteData));
+      console.log('Quote data includes tva?', 'tva' in quoteData);
+      console.log('Quote data stringified:', JSON.stringify(quoteData, null, 2));
+      console.log('============================');
+
+      console.log('Sending request to:', isEdit && id ? 
+        `${API_BASE_URL}/quotes/${id}` : 
+        `${API_BASE_URL}/quotes`
+      );
+
+      // Use fetch directly for better debugging
+      try {
+        const url = isEdit && id 
+          ? `${API_BASE_URL}/quotes/${id}`
+          : `${API_BASE_URL}/quotes`;
+          
+        const method = isEdit ? 'PUT' : 'POST';
+        
+        console.log(`Sending ${method} request to:`, url);
+        console.log('Request body:', JSON.stringify(quoteData, null, 2));
+        
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          },
+          body: JSON.stringify(quoteData)
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response status text:', response.statusText);
+        
+        const responseText = await response.text();
+        console.log('Raw response text:', responseText);
+        
+        let responseData;
+        try {
+          responseData = responseText ? JSON.parse(responseText) : {};
+          console.log('Parsed response data:', responseData);
+        } catch (parseError) {
+          console.error('Failed to parse response as JSON:', parseError);
+          throw new Error('Received invalid JSON response from server');
+        }
+        
+        if (response.ok) {
+          // Only navigate if the request was successful
+          navigate('/quotes');
+          return responseData;
+        }
+        
+        if (!response.ok) {
+          console.error('API Error:', {
+            status: response.status,
+            statusText: response.statusText,
+            data: responseData
+          });
+          
+          const errorMessage = responseData.message || 
+            `Error ${response.status}: ${response.statusText || 'Unknown error'}`;
+          
+          // Handle specific error cases
+          if (response.status === 500 && responseData.message?.includes('Unknown column')) {
+            throw new Error(`Database error: ${responseData.message}. Please contact support.`);
+          }
+          
+          throw new Error(errorMessage);
+        }
+        
+        return responseData;
+      } catch (fetchError) {
+        console.error('Fetch error:', fetchError);
+        throw fetchError;
       }
-
-      navigate('/quotes');
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Failed to save quote');
+      console.error('Error creating quote:', error);
+      
+      // Log full error object for debugging
+      console.error('Full error object:', JSON.stringify(error, null, 2));
+      
+      // Handle fetch error response
+      if (error.response) {
+        const response = error.response;
+        console.error('Error response status:', response.status);
+        console.error('Error response data:', response.data);
+        
+        // Try to get more details from the response
+        if (response.data) {
+          console.error('Response data type:', typeof response.data);
+          console.error('Response data keys:', Object.keys(response.data));
+          
+          // If we have a products array in the error, log its contents
+          if (response.data.products) {
+            console.error('Products in error:', response.data.products);
+          }
+          
+          // If we have validation errors, display them
+          if (response.data.errors) {
+            const formattedErrors: Record<string, string> = {};
+            Object.entries(response.data.errors).forEach(([field, messages]) => {
+              formattedErrors[field] = Array.isArray(messages) ? messages.join(', ') : String(messages);
+            });
+            setValidationErrors(formattedErrors);
+            setError('Please correct the validation errors below.');
+            return;
+          }
+        }
+      }
+      
+      // Set a generic error message if not already set
+      setError(error.message || 'An error occurred while saving the quote.');
+      
+      // Only navigate away if this is not a validation error
+      if (!error.response?.data?.errors) {
+        // Small delay to ensure error state is updated before navigation
+        setTimeout(() => {
+          navigate('/quotes');
+        }, 100);
+      }
+      
+      // Fallback error message
+      setError('An error occurred while saving the quote. Please check the console for details.');
     } finally {
       setLoading(false);
     }
@@ -227,14 +345,21 @@ const QuoteForm: React.FC = () => {
       const price = Number(detail.prix_unitaire) || 0;
       return sum + (quantity * price);
     }, 0);
-    
-    const tvaAmount = totalHT * (Number(formData.tva) / 100);
+  
+    // Calculate TVA amount based on the form's TVA rate (default 0)
+    const tvaRate = formData.tva || 0;
+    const tvaAmount = (totalHT * tvaRate) / 100;
     const totalTTC = totalHT + tvaAmount;
 
-    return { totalHT, tvaAmount, totalTTC };
+    return { 
+      totalHT, 
+      tvaAmount,
+      totalTTC,
+      tvaRate
+    };
   };
 
-  const { totalHT, tvaAmount, totalTTC } = calculateTotals();
+  const { totalHT, tvaAmount, totalTTC, tvaRate } = calculateTotals();
 
   if (loading && isEdit) {
     return (
@@ -259,10 +384,10 @@ const QuoteForm: React.FC = () => {
       <div className="bg-secondary rounded-lg shadow-lg p-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-white">
-            {isEdit ? 'Edit Quote' : 'Create New Quote'}
+            {isEdit ? 'Modifier le devis' : 'Nouveau devis'}
           </h1>
           <p className="mt-2 text-sm text-gray-300">
-            {isEdit ? 'Update quote information' : 'Create a new quote for your client'}
+            {isEdit ? 'Mettre à jour les informations du devis' : 'Créer un nouveau devis pour votre client'}
           </p>
         </div>
 
@@ -277,7 +402,7 @@ const QuoteForm: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="numero_devis" className="block text-sm font-medium text-gray-300 mb-2">
-                Quote Number *
+                Numéro de devis *
               </label>
               <input
                 type="text"
@@ -322,7 +447,7 @@ const QuoteForm: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label htmlFor="date_devis" className="block text-sm font-medium text-gray-300 mb-2">
-                Quote Date *
+                Date du devis *
               </label>
               <input
                 type="date"
@@ -341,7 +466,7 @@ const QuoteForm: React.FC = () => {
 
             <div>
               <label htmlFor="date_validite" className="block text-sm font-medium text-gray-300 mb-2">
-                Valid Until *
+                Valable jusqu'au *
               </label>
               <input
                 type="date"
@@ -360,7 +485,7 @@ const QuoteForm: React.FC = () => {
 
             <div>
               <label htmlFor="statut" className="block text-sm font-medium text-gray-300 mb-2">
-                Status
+                Statut
               </label>
               <select
                 id="statut"
@@ -369,10 +494,10 @@ const QuoteForm: React.FC = () => {
                 onChange={handleChange}
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors"
               >
-                <option value="draft">Draft</option>
-                <option value="sent">Sent</option>
-                <option value="accepted">Accepted</option>
-                <option value="refused">Refused</option>
+                <option value="draft">Brouillon</option>
+                <option value="sent">Envoyé</option>
+                <option value="accepted">Accepté</option>
+                <option value="refused">Refusé</option>
               </select>
             </div>
           </div>
@@ -380,7 +505,7 @@ const QuoteForm: React.FC = () => {
           {/* Quote Details */}
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-white">Quote Items</h3>
+              <h3 className="text-lg font-medium text-white">Articles du devis</h3>
               <button
                 type="button"
                 onClick={addDetail}
@@ -388,7 +513,7 @@ const QuoteForm: React.FC = () => {
                 style={{ backgroundColor: '#D7FEFA' }}
               >
                 <PlusIcon className="h-4 w-4 mr-2" />
-                Add Item
+                Ajouter un article
               </button>
             </div>
 
@@ -398,7 +523,7 @@ const QuoteForm: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Product *
+                        Produit *
                       </label>
                       <select
                         value={detail.product_id}
@@ -407,10 +532,10 @@ const QuoteForm: React.FC = () => {
                           validationErrors[`detail_${index}_product`] ? 'border-red-500' : 'border-gray-500'
                         }`}
                       >
-                        <option value="">Select a product</option>
+                        <option value="">Sélectionner un produit</option>
                         {products.map(product => (
                           <option key={product.id} value={product.id}>
-                            {product.nom} - €{Number(product.prix_unitaire).toFixed(2)}/{product.unite}
+                            {product.nom} - {Number(product.prix_unitaire).toFixed(2)} MAD/{product.unite}
                           </option>
                         ))}
                       </select>
@@ -421,7 +546,7 @@ const QuoteForm: React.FC = () => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Quantity *
+                        Quantité *
                       </label>
                       <input
                         type="number"
@@ -442,7 +567,7 @@ const QuoteForm: React.FC = () => {
                     <div className="flex items-end">
                       <div className="flex-1">
                         <label className="block text-sm font-medium text-gray-300 mb-2">
-                          Unit Price (€) *
+                          Prix unitaire (MAD) *
                         </label>
                         <input
                           type="number"
@@ -464,7 +589,7 @@ const QuoteForm: React.FC = () => {
                           type="button"
                           onClick={() => removeDetail(index)}
                           className="ml-2 p-2 text-red-400 hover:text-red-300 transition-colors"
-                          title="Remove item"
+                          title="Supprimer l'article"
                         >
                           <TrashIcon className="h-5 w-5" />
                         </button>
@@ -475,8 +600,8 @@ const QuoteForm: React.FC = () => {
                   {detail.quantite && detail.prix_unitaire && (
                     <div className="mt-2 text-right">
                       <span className="text-sm text-gray-300">
-                        Line Total: <span className="text-white font-medium">
-                          €{(Number(detail.quantite) * Number(detail.prix_unitaire)).toFixed(2)}
+                        Total de la ligne : <span className="text-white font-medium">
+                          {(Number(detail.quantite) * Number(detail.prix_unitaire)).toFixed(2)} MAD
                         </span>
                       </span>
                     </div>
@@ -486,46 +611,23 @@ const QuoteForm: React.FC = () => {
             </div>
           </div>
 
-          {/* VAT and Totals */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="tva" className="block text-sm font-medium text-gray-300 mb-2">
-                VAT Rate (%) *
-              </label>
-              <input
-                type="number"
-                id="tva"
-                name="tva"
-                value={formData.tva}
-                onChange={handleChange}
-                min="0"
-                max="100"
-                step="0.01"
-                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
-                  validationErrors.tva ? 'border-red-500' : 'border-gray-600'
-                }`}
-                placeholder="20"
-              />
-              {validationErrors.tva && (
-                <p className="mt-1 text-sm text-red-400">{validationErrors.tva}</p>
+          {/* Totals */}
+          <div className="bg-gray-700 rounded-lg p-4">
+            <h4 className="text-lg font-medium text-white mb-3">Récapitulatif du devis</h4>
+            <div className="space-y-2">
+              <div className="flex justify-between text-gray-300">
+                <span>Sous-total :</span>
+                <span>{totalHT.toFixed(2)} MAD</span>
+              </div>
+              {tvaRate > 0 && (
+                <div className="flex justify-between text-gray-300">
+                  <span>TVA ({tvaRate}%) :</span>
+                  <span>{tvaAmount.toFixed(2)} MAD</span>
+                </div>
               )}
-            </div>
-
-            <div className="bg-gray-700 rounded-lg p-4">
-              <h4 className="text-lg font-medium text-white mb-3">Quote Summary</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between text-gray-300">
-                  <span>Subtotal (HT):</span>
-                  <span>€{totalHT.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-gray-300">
-                  <span>VAT ({formData.tva}%):</span>
-                  <span>€{tvaAmount.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-white font-medium text-lg border-t border-gray-600 pt-2">
-                  <span>Total (TTC):</span>
-                  <span>€{totalTTC.toFixed(2)}</span>
-                </div>
+              <div className="flex justify-between text-white font-medium text-lg border-t border-gray-600 pt-2 mt-2">
+                <span>Total TTC :</span>
+                <span>{totalTTC.toFixed(2)} MAD</span>
               </div>
             </div>
           </div>
@@ -536,7 +638,7 @@ const QuoteForm: React.FC = () => {
               onClick={() => navigate('/quotes')}
               className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
             >
-              Cancel
+              Annuler
             </button>
             <button
               type="submit"
@@ -544,7 +646,7 @@ const QuoteForm: React.FC = () => {
               className="px-4 py-2 text-sm font-medium text-primary rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               style={{ backgroundColor: '#D7FEFA' }}
             >
-              {loading ? 'Saving...' : isEdit ? 'Update Quote' : 'Create Quote'}
+              {loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour le devis' : 'Créer le devis'}
             </button>
           </div>
         </form>

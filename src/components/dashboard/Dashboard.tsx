@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { productsAPI, clientsAPI, quotesAPI } from '../../services/api';
+import { clientsAPI, quotesAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   CubeIcon,
@@ -70,28 +70,28 @@ const Dashboard: React.FC = () => {
 
   const statCards = [
     {
-      name: 'Total Quotes',
+      name: 'Total Devis',
       value: stats.totalQuotes,
       icon: DocumentTextIcon,
       color: 'bg-accent-cyan/20',
       iconColor: 'text-accent-cyan',
     },
     {
-      name: 'Approved Quotes',
+      name: 'Devis Approuvés',
       value: stats.approvedQuotes,
       icon: CheckCircleIcon,
       color: 'bg-green-500/20',
       iconColor: 'text-green-400',
     },
     {
-      name: 'Pending Quotes',
+      name: 'Devis en Attente',
       value: stats.pendingQuotes,
       icon: ClockIcon,
       color: 'bg-yellow-500/20',
       iconColor: 'text-yellow-400',
     },
     {
-      name: 'Rejected Quotes',
+      name: 'Devis Rejetés',
       value: stats.rejectedQuotes,
       icon: XCircleIcon,
       color: 'bg-red-500/20',
@@ -111,8 +111,8 @@ const Dashboard: React.FC = () => {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-text-primary">Dashboard</h1>
-        <p className="mt-2 text-text-secondary">Welcome back, {user?.name}! Here's your quote management overview.</p>
+        <h1 className="text-2xl font-bold text-text-primary">Tableau de bord</h1>
+        <p className="text-text-secondary">Bon retour, {user?.name} !</p>
       </div>
 
       {/* Stats Grid */}
@@ -144,11 +144,11 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-text-secondary text-sm font-medium">Total Revenue</p>
-              <p className="text-text-primary text-3xl font-bold mt-2">€{stats.totalRevenue.toFixed(2)}</p>
+              <p className="text-text-primary text-3xl font-bold mt-2">{stats.totalRevenue.toFixed(2)} MAD</p>
               <p className="text-green-400 text-sm mt-1">From approved quotes</p>
             </div>
             <div className="bg-green-500/20 p-3 rounded-lg">
-              <CurrencyEuroIcon className="h-6 w-6 text-green-400" />
+              <CurrencyEuroIcon className="h-6 w-6 text-green-400 transform rotate-45" title="MAD" />
             </div>
           </div>
         </div>
@@ -169,22 +169,21 @@ const Dashboard: React.FC = () => {
 
       {/* Quick Actions */}
       <div className="bg-dark-card rounded-xl p-6 shadow-card">
-        <h2 className="text-xl font-semibold text-text-primary mb-6">Quick Actions</h2>
+        <h2 className="text-xl font-semibold text-text-primary mb-6">Actions rapides</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <a
-            href="/quotes/create"
-            className="group bg-gradient-to-r from-accent-cyan/10 to-accent-cyan/5 border border-accent-cyan/20 rounded-lg p-6 hover:border-accent-cyan/40 transition-colors"
-          >
+          <div className="group bg-gradient-to-r from-accent-cyan/10 to-accent-cyan/5 border border-accent-cyan/20 rounded-lg p-6 hover:border-accent-cyan/40 transition-colors">
             <div className="flex items-center gap-4">
-              <div className="bg-accent-cyan/20 p-3 rounded-lg group-hover:bg-accent-cyan/30 transition-colors">
-                <PlusIcon className="h-6 w-6 text-accent-cyan" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-text-primary">Create New Quote</h3>
-                <p className="text-text-secondary text-sm">Generate quotes for clients</p>
+              <div className="flex items-center gap-3 rounded-lg p-4 transition-colors cursor-pointer">
+                <div className="rounded-full bg-accent-cyan/20 p-2">
+                  <PlusIcon className="h-5 w-5 text-accent-cyan" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-text-primary">Nouveau devis</h3>
+                  <p className="text-sm text-text-secondary">Créer un nouveau devis</p>
+                </div>
               </div>
             </div>
-          </a>
+          </div>
 
           <a
             href="/clients"
@@ -195,26 +194,25 @@ const Dashboard: React.FC = () => {
                 <UserGroupIcon className="h-6 w-6 text-blue-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-text-primary">Manage Clients</h3>
-                <p className="text-text-secondary text-sm">View and edit client information</p>
+                <h2 className="text-lg font-medium text-text-primary">Gérer les clients</h2>
+              <p className="text-sm text-text-secondary">Afficher et modifier les informations client</p>
               </div>
             </div>
           </a>
 
-          <a
-            href="/products"
-            className="group bg-dark-bg/50 border border-gray-700 rounded-lg p-6 hover:border-gray-600 transition-colors"
-          >
+          <div className="group bg-dark-bg/50 border border-gray-700 rounded-lg p-6 hover:border-gray-600 transition-colors">
             <div className="flex items-center gap-4">
-              <div className="bg-purple-500/20 p-3 rounded-lg group-hover:bg-purple-500/30 transition-colors">
-                <CubeIcon className="h-6 w-6 text-purple-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-text-primary">Manage Products</h3>
-                <p className="text-text-secondary text-sm">Update product catalog</p>
+              <div className="flex items-center gap-3 rounded-lg p-4 transition-colors cursor-pointer">
+                <div className="rounded-full bg-blue-500/20 p-2">
+                  <CubeIcon className="h-5 w-5 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-text-primary">Ajouter un produit</h3>
+                  <p className="text-sm text-text-secondary">Ajouter un nouveau produit</p>
+                </div>
               </div>
             </div>
-          </a>
+          </div>
         </div>
       </div>
     </div>

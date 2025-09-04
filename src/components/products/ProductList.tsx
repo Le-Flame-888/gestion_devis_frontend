@@ -31,7 +31,7 @@ const ProductList: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
       try {
         await productsAPI.delete(id);
         fetchProducts();
@@ -55,7 +55,7 @@ const ProductList: React.FC = () => {
         <div className="bg-red-900/20 border border-red-500 rounded-lg p-4">
           <div className="flex">
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-400">Error</h3>
+              <h3 className="text-sm font-medium text-red-400">Erreur</h3>
               <div className="mt-2 text-sm text-red-300">
                 <p>{error}</p>
               </div>
@@ -64,7 +64,7 @@ const ProductList: React.FC = () => {
                   onClick={fetchProducts}
                   className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
-                  Try Again
+                  Réessayer
                 </button>
               </div>
             </div>
@@ -78,9 +78,9 @@ const ProductList: React.FC = () => {
     <div className="px-4 py-6 sm:px-0">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-2xl font-bold text-white">Products</h1>
+          <h1 className="text-2xl font-bold text-white">Produits</h1>
           <p className="mt-2 text-sm text-gray-300">
-            A list of all products in your catalog including their name, description, price, and stock.
+            Liste de tous les produits de votre catalogue avec leur nom, description, prix et stock.
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -91,7 +91,7 @@ const ProductList: React.FC = () => {
             style={{ backgroundColor: '#D7FEFA' }}
           >
             <PlusIcon className="h-4 w-4 mr-2" />
-            Add Product
+            Ajouter un produit
           </button>
         </div>
       </div>
@@ -102,13 +102,13 @@ const ProductList: React.FC = () => {
             <thead className="bg-gray-700">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Product
+                  Produit
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Price
+                  Prix
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Unit
+                  Unité
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Stock
@@ -132,7 +132,7 @@ const ProductList: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                    €{Number(product.prix_unitaire).toFixed(2)}
+                    {Number(product.prix_unitaire).toFixed(2)} MAD
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     {product.unite}
@@ -152,14 +152,14 @@ const ProductList: React.FC = () => {
                     <button
                       onClick={() => navigate(`/products/edit/${product.id}`)}
                       className="text-accent hover:text-accent/80 mr-4 transition-colors"
-                      title="Edit"
+                      title="Modifier"
                     >
                       <PencilIcon className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(product.id)}
                       className="text-red-400 hover:text-red-300 transition-colors"
-                      title="Delete"
+                      title="Supprimer"
                     >
                       <TrashIcon className="h-4 w-4" />
                     </button>
@@ -179,17 +179,17 @@ const ProductList: React.FC = () => {
             disabled={currentPage === 1}
             className="px-4 py-2 text-sm font-medium text-white bg-secondary border border-gray-600 rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            Previous
+            Précédent
           </button>
           <span className="text-sm text-gray-300">
-            Page {currentPage} of {totalPages}
+            Page {currentPage} sur {totalPages}
           </span>
           <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
             className="px-4 py-2 text-sm font-medium text-white bg-secondary border border-gray-600 rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            Next
+            Suivant
           </button>
         </div>
       )}

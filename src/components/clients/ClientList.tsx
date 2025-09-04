@@ -28,7 +28,7 @@ const ClientList: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this client?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
       try {
         await clientsAPI.delete(id);
         fetchClients();
@@ -52,7 +52,7 @@ const ClientList: React.FC = () => {
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-bold text-white">Clients</h1>
           <p className="mt-2 text-sm text-gray-300">
-            A list of all clients including their contact information and address.
+            Liste de tous les clients avec leurs coordonnées et adresse.
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -63,7 +63,7 @@ const ClientList: React.FC = () => {
             style={{ backgroundColor: '#D7FEFA' }}
           >
             <PlusIcon className="h-4 w-4 mr-2" />
-            Add Client
+            Ajouter un client
           </button>
         </div>
       </div>
@@ -74,13 +74,13 @@ const ClientList: React.FC = () => {
             <thead className="bg-gray-700">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Name
+                  Nom
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Contact
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Location
+                  Localisation
                 </th>
                 <th className="relative px-6 py-3">
                   <span className="sr-only">Actions</span>
@@ -104,20 +104,22 @@ const ClientList: React.FC = () => {
                     <div className="text-sm text-gray-300">{client.code_postal}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => navigate(`/clients/edit/${client.id}`)}
-                      className="text-accent hover:text-accent/80 mr-4 transition-colors"
-                      title="Edit"
-                    >
-                      <PencilIcon className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(client.id)}
-                      className="text-red-400 hover:text-red-300 transition-colors"
-                      title="Delete"
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => navigate(`/clients/edit/${client.id}`)}
+                        className="text-blue-400 hover:text-blue-300 transition-colors"
+                        title="Modifier"
+                      >
+                        <PencilIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(client.id)}
+                        className="text-red-400 hover:text-red-300 transition-colors"
+                        title="Supprimer"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

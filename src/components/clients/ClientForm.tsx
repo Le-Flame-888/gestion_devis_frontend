@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { clientsAPI } from '../../services/api';
-import type { Client } from '../../types';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 interface ClientFormData {
@@ -50,7 +49,7 @@ const ClientForm: React.FC = () => {
         code_postal: client.code_postal,
       });
     } catch (error) {
-      setError('Failed to load client');
+      setError('Échec du chargement du client');
     } finally {
       setLoading(false);
     }
@@ -60,24 +59,24 @@ const ClientForm: React.FC = () => {
     const errors: Record<string, string> = {};
 
     if (!formData.nom.trim()) {
-      errors.nom = 'Client name is required';
+      errors.nom = 'Le nom du client est requis';
     }
     if (!formData.email.trim()) {
-      errors.email = 'Email is required';
+      errors.email = 'L\'email est requis';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = 'Email is invalid';
+      errors.email = 'L\'email est invalide';
     }
     if (!formData.telephone.trim()) {
-      errors.telephone = 'Phone number is required';
+      errors.telephone = 'Le numéro de téléphone est requis';
     }
     if (!formData.adresse.trim()) {
-      errors.adresse = 'Address is required';
+      errors.adresse = 'L\'adresse est requise';
     }
     if (!formData.ville.trim()) {
-      errors.ville = 'City is required';
+      errors.ville = 'La ville est requise';
     }
     if (!formData.code_postal.trim()) {
-      errors.code_postal = 'Postal code is required';
+      errors.code_postal = 'Le code postal est requis';
     }
 
     setValidationErrors(errors);
@@ -129,23 +128,28 @@ const ClientForm: React.FC = () => {
 
   return (
     <div className="px-4 py-6 sm:px-0">
-      <div className="mb-6">
+      <div className="flex items-center justify-between mb-6">
         <button
-          onClick={() => navigate('/clients')}
-          className="inline-flex items-center text-accent hover:text-accent/80 transition-colors"
+          type="button"
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center text-sm text-gray-300 hover:text-white transition-colors"
         >
-          <ArrowLeftIcon className="h-4 w-4 mr-2" />
-          Back to Clients
+          <ArrowLeftIcon className="h-4 w-4 mr-1" />
+          Retour aux clients
         </button>
+        <h1 className="text-2xl font-bold text-white">
+          {isEdit ? 'Modifier le client' : 'Ajouter un client'}
+        </h1>
+        <div className="w-24"></div> {/* Pour l'alignement */}
       </div>
 
       <div className="bg-secondary rounded-lg shadow-lg p-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-white">
-            {isEdit ? 'Edit Client' : 'Create New Client'}
+            {isEdit ? 'Modifier le client' : 'Ajouter un client'}
           </h1>
           <p className="mt-2 text-sm text-gray-300">
-            {isEdit ? 'Update client information' : 'Add a new client to your database'}
+            {isEdit ? 'Mettre à jour les informations du client' : 'Ajouter un nouveau client à votre base de données'}
           </p>
         </div>
 
@@ -158,8 +162,8 @@ const ClientForm: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="nom" className="block text-sm font-medium text-gray-300 mb-2">
-                Client Name *
+              <label htmlFor="nom" className="block text-sm font-medium text-gray-300 mb-1">
+                Nom du client *
               </label>
               <input
                 type="text"
@@ -170,7 +174,7 @@ const ClientForm: React.FC = () => {
                 className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
                   validationErrors.nom ? 'border-red-500' : 'border-gray-600'
                 }`}
-                placeholder="Enter client name"
+                placeholder="Entrez le nom du client"
               />
               {validationErrors.nom && (
                 <p className="mt-1 text-sm text-red-400">{validationErrors.nom}</p>
@@ -178,8 +182,8 @@ const ClientForm: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                Email Address *
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
+                Email *
               </label>
               <input
                 type="email"
@@ -199,8 +203,8 @@ const ClientForm: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="telephone" className="block text-sm font-medium text-gray-300 mb-2">
-              Phone Number *
+            <label htmlFor="telephone" className="block text-sm font-medium text-gray-300 mb-1">
+              Téléphone *
             </label>
             <input
               type="tel"
@@ -219,8 +223,8 @@ const ClientForm: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="adresse" className="block text-sm font-medium text-gray-300 mb-2">
-              Address *
+            <label htmlFor="adresse" className="block text-sm font-medium text-gray-300 mb-1">
+              Adresse *
             </label>
             <textarea
               id="adresse"
@@ -231,7 +235,7 @@ const ClientForm: React.FC = () => {
               className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
                 validationErrors.adresse ? 'border-red-500' : 'border-gray-600'
               }`}
-              placeholder="Enter full address"
+              placeholder="Entrez l'adresse"
             />
             {validationErrors.adresse && (
               <p className="mt-1 text-sm text-red-400">{validationErrors.adresse}</p>
@@ -240,8 +244,8 @@ const ClientForm: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="ville" className="block text-sm font-medium text-gray-300 mb-2">
-                City *
+              <label htmlFor="ville" className="block text-sm font-medium text-gray-300 mb-1">
+                Ville *
               </label>
               <input
                 type="text"
@@ -252,7 +256,7 @@ const ClientForm: React.FC = () => {
                 className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
                   validationErrors.ville ? 'border-red-500' : 'border-gray-600'
                 }`}
-                placeholder="Enter city"
+                placeholder="Entrez la ville"
               />
               {validationErrors.ville && (
                 <p className="mt-1 text-sm text-red-400">{validationErrors.ville}</p>
@@ -260,8 +264,8 @@ const ClientForm: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="code_postal" className="block text-sm font-medium text-gray-300 mb-2">
-                Postal Code *
+              <label htmlFor="code_postal" className="block text-sm font-medium text-gray-300 mb-1">
+                Code postal *
               </label>
               <input
                 type="text"
@@ -286,15 +290,20 @@ const ClientForm: React.FC = () => {
               onClick={() => navigate('/clients')}
               className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
             >
-              Cancel
+              Annuler
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-primary rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              style={{ backgroundColor: '#D7FEFA' }}
+              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent-cyan hover:bg-accent-cyan/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-cyan transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Saving...' : isEdit ? 'Update Client' : 'Create Client'}
+              {loading ? (
+                'Enregistrement...'
+              ) : isEdit ? (
+                'Mettre à jour le client'
+              ) : (
+                'Ajouter le client'
+              )}
             </button>
           </div>
         </form>

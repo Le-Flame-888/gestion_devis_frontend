@@ -22,12 +22,11 @@ const Layout: React.FC = () => {
   };
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-    { name: 'All Quotes', href: '/quotes', icon: DocumentTextIcon },
-    { name: 'Create New Quote', href: '/quotes/create', icon: PlusIcon },
+    { name: 'Tableau de bord', href: '/dashboard', icon: HomeIcon },
+    { name: 'Tous les devis', href: '/quotes', icon: DocumentTextIcon },
+    { name: 'Nouveau devis', href: '/quotes/new', icon: PlusIcon },
     { name: 'Clients', href: '/clients', icon: UserGroupIcon },
-    { name: 'Products', href: '/products', icon: CubeIcon },
-    { name: 'Reports', href: '/reports', icon: ChartBarIcon },
+    { name: 'Produits', href: '/products', icon: CubeIcon },
   ];
 
   const isActive = (href: string) => location.pathname === href;
@@ -39,7 +38,7 @@ const Layout: React.FC = () => {
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-16 shrink-0 items-center px-6 border-b border-gray-700">
-            <h1 className="text-xl font-bold text-accent-cyan">Quote Manager</h1>
+            <h1 className="text-xl font-bold text-accent-cyan">Gestion des Devis</h1>
           </div>
 
           {/* Navigation */}
@@ -81,7 +80,7 @@ const Layout: React.FC = () => {
                 <button
                   onClick={handleLogout}
                   className="text-text-secondary hover:text-text-primary transition-colors"
-                  title="Logout"
+                  title="Déconnexion"
                 >
                   <ArrowRightOnRectangleIcon className="h-5 w-5" />
                 </button>

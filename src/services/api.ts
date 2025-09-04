@@ -20,7 +20,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle auth errors
+// Handle response errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -28,6 +28,37 @@ api.interceptors.response.use(
       localStorage.removeItem('auth_token');
       // Don't redirect here, let the AuthContext handle it
     }
+    
+    // For 422 validation errors, format the error response
+    if (error.response?.status === 422 && error.response?.data?.errors) {
+      const formattedErrors: Record<string, string> = {};
+      const backendErrors = error.response.data.errors;
+      
+      // Format the errors to match the form's expected format
+      for (const [key, value] of Object.entries(backendErrors)) {
+        // Handle nested errors (e.g., details.0.quantite)
+        if (key.startsWith('details.') && key.includes('.')) {
+          const [_, index, field] = key.split('.');
+          const errorKey = `detail_${index}_${field}`;
+          formattedErrors[errorKey] = Array.isArray(value) ? value[0] : String(value);
+        } else {
+          formattedErrors[key] = Array.isArray(value) ? value[0] : String(value);
+        }
+      }
+      
+      // Return a custom error with the formatted errors
+      return Promise.reject({
+        ...error,
+        response: {
+          ...error.response,
+          data: {
+            ...error.response.data,
+            formattedErrors
+          }
+        }
+      });
+    }
+    
     return Promise.reject(error);
   }
 );

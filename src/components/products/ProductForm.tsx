@@ -47,7 +47,7 @@ const ProductForm: React.FC = () => {
         stock: product.stock.toString(),
       });
     } catch (error) {
-      setError('Failed to load product');
+      setError('Échec du chargement du produit');
     } finally {
       setLoading(false);
     }
@@ -57,16 +57,16 @@ const ProductForm: React.FC = () => {
     const errors: Record<string, string> = {};
 
     if (!formData.nom.trim()) {
-      errors.nom = 'Product name is required';
+      errors.nom = 'Le nom du produit est requis';
     }
     if (!formData.description.trim()) {
-      errors.description = 'Description is required';
+      errors.description = 'La description est requise';
     }
     if (!formData.prix_unitaire || Number(formData.prix_unitaire) <= 0) {
-      errors.prix_unitaire = 'Valid price is required';
+      errors.prix_unitaire = 'Un prix valide est requis';
     }
     if (!formData.stock || Number(formData.stock) < 0) {
-      errors.stock = 'Valid stock quantity is required';
+      errors.stock = 'Une quantité en stock valide est requise';
     }
 
     setValidationErrors(errors);
@@ -139,10 +139,10 @@ const ProductForm: React.FC = () => {
       <div className="bg-secondary rounded-lg shadow-lg p-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-white">
-            {isEdit ? 'Edit Product' : 'Create New Product'}
+            {isEdit ? 'Modifier le produit' : 'Nouveau produit'}
           </h1>
           <p className="mt-2 text-sm text-gray-300">
-            {isEdit ? 'Update product information' : 'Add a new product to your catalog'}
+            {isEdit ? 'Mettre à jour les informations du produit' : 'Ajouter un nouveau produit au catalogue'}
           </p>
         </div>
 
@@ -156,7 +156,7 @@ const ProductForm: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="nom" className="block text-sm font-medium text-gray-300 mb-2">
-                Product Name *
+                Nom du produit *
               </label>
               <input
                 type="text"
@@ -167,7 +167,7 @@ const ProductForm: React.FC = () => {
                 className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
                   validationErrors.nom ? 'border-red-500' : 'border-gray-600'
                 }`}
-                placeholder="Enter product name"
+                placeholder="Entrez le nom du produit"
               />
               {validationErrors.nom && (
                 <p className="mt-1 text-sm text-red-400">{validationErrors.nom}</p>
@@ -176,7 +176,7 @@ const ProductForm: React.FC = () => {
 
             <div>
               <label htmlFor="unite" className="block text-sm font-medium text-gray-300 mb-2">
-                Unit *
+                Unité *
               </label>
               <select
                 id="unite"
@@ -204,7 +204,7 @@ const ProductForm: React.FC = () => {
               className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
                 validationErrors.description ? 'border-red-500' : 'border-gray-600'
               }`}
-              placeholder="Enter product description"
+              placeholder="Entrez la description du produit"
             />
             {validationErrors.description && (
               <p className="mt-1 text-sm text-red-400">{validationErrors.description}</p>
@@ -214,7 +214,7 @@ const ProductForm: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="prix_unitaire" className="block text-sm font-medium text-gray-300 mb-2">
-                Unit Price (€) *
+                Prix unitaire (€) *
               </label>
               <input
                 type="number"
@@ -236,7 +236,7 @@ const ProductForm: React.FC = () => {
 
             <div>
               <label htmlFor="stock" className="block text-sm font-medium text-gray-300 mb-2">
-                Stock Quantity *
+                Quantité en stock *
               </label>
               <input
                 type="number"
@@ -262,7 +262,7 @@ const ProductForm: React.FC = () => {
               onClick={() => navigate('/products')}
               className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
             >
-              Cancel
+              Annuler
             </button>
             <button
               type="submit"
@@ -270,7 +270,7 @@ const ProductForm: React.FC = () => {
               className="px-4 py-2 text-sm font-medium text-primary rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               style={{ backgroundColor: '#D7FEFA' }}
             >
-              {loading ? 'Saving...' : isEdit ? 'Update Product' : 'Create Product'}
+              {loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour' : 'Créer le produit'}
             </button>
           </div>
         </form>
