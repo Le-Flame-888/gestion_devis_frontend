@@ -6,10 +6,8 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 interface ProductFormData {
   nom: string;
-  description: string;
-  prix_unitaire: string;
+  categorie: 'Marbre' | 'Carrelage' | 'Autre';
   unite: 'm2' | 'm3';
-  stock: string;
 }
 
 const ProductForm: React.FC = () => {
@@ -19,10 +17,8 @@ const ProductForm: React.FC = () => {
 
   const [formData, setFormData] = useState<ProductFormData>({
     nom: '',
-    description: '',
-    prix_unitaire: '',
+    categorie: 'Marbre',
     unite: 'm2',
-    stock: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,10 +37,8 @@ const ProductForm: React.FC = () => {
       const product = response.data;
       setFormData({
         nom: product.nom,
-        description: product.description,
-        prix_unitaire: product.prix_unitaire.toString(),
+        categorie: product.categorie,
         unite: product.unite,
-        stock: product.stock.toString(),
       });
     } catch (error) {
       setError('Échec du chargement du produit');
@@ -59,14 +53,8 @@ const ProductForm: React.FC = () => {
     if (!formData.nom.trim()) {
       errors.nom = 'Le nom du produit est requis';
     }
-    if (!formData.description.trim()) {
-      errors.description = 'La description est requise';
-    }
-    if (!formData.prix_unitaire || Number(formData.prix_unitaire) <= 0) {
-      errors.prix_unitaire = 'Un prix valide est requis';
-    }
-    if (!formData.stock || Number(formData.stock) < 0) {
-      errors.stock = 'Une quantité en stock valide est requise';
+    if (!formData.categorie) {
+      errors.categorie = 'La catégorie est requise';
     }
 
     setValidationErrors(errors);
@@ -86,21 +74,39 @@ const ProductForm: React.FC = () => {
 
       const productData = {
         nom: formData.nom,
-        description: formData.description,
-        prix_unitaire: Number(formData.prix_unitaire),
+        categorie: formData.categorie,
         unite: formData.unite,
-        stock: Number(formData.stock),
       };
 
+      console.log('Données envoyées au serveur:', productData);
+
+      let response;
       if (isEdit && id) {
-        await productsAPI.update(Number(id), productData);
+        response = await productsAPI.update(Number(id), productData);
       } else {
-        await productsAPI.create(productData);
+        response = await productsAPI.create(productData);
       }
 
+      console.log('Réponse du serveur:', response.data);
       navigate('/products');
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Failed to save product');
+      console.error('Erreur lors de la sauvegarde du produit:', error);
+      if (error.response) {
+        console.error('Détails de l\'erreur:', error.response.data);
+        if (error.response.status === 422 && error.response.data.errors) {
+          // Formater les erreurs de validation du backend
+          const formattedErrors: Record<string, string> = {};
+          for (const [key, value] of Object.entries(error.response.data.errors)) {
+            formattedErrors[key] = Array.isArray(value) ? value[0] : String(value);
+          }
+          setValidationErrors(formattedErrors);
+          setError('Veuillez corriger les erreurs dans le formulaire.');
+        } else {
+          setError(error.response.data.message || 'Une erreur est survenue lors de la sauvegarde du produit.');
+        }
+      } else {
+        setError('Impossible de se connecter au serveur. Veuillez vérifier votre connexion.');
+      }
     } finally {
       setLoading(false);
     }
@@ -192,68 +198,25 @@ const ProductForm: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">
-              Description *
+            <label htmlFor="categorie" className="block text-sm font-medium text-gray-300 mb-2">
+              Catégorie *
             </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
+            <select
+              id="categorie"
+              name="categorie"
+              value={formData.categorie}
               onChange={handleChange}
-              rows={3}
-              className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
-                validationErrors.description ? 'border-red-500' : 'border-gray-600'
+              className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
+                validationErrors.categorie ? 'border-red-500' : 'border-gray-600'
               }`}
-              placeholder="Entrez la description du produit"
-            />
-            {validationErrors.description && (
-              <p className="mt-1 text-sm text-red-400">{validationErrors.description}</p>
+            >
+              <option value="Marbre">Marbre</option>
+              <option value="Carrelage">Carrelage</option>
+              <option value="Autre">Autre</option>
+            </select>
+            {validationErrors.categorie && (
+              <p className="mt-1 text-sm text-red-400">{validationErrors.categorie}</p>
             )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="prix_unitaire" className="block text-sm font-medium text-gray-300 mb-2">
-                Prix unitaire (€) *
-              </label>
-              <input
-                type="number"
-                id="prix_unitaire"
-                name="prix_unitaire"
-                value={formData.prix_unitaire}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
-                  validationErrors.prix_unitaire ? 'border-red-500' : 'border-gray-600'
-                }`}
-                placeholder="0.00"
-              />
-              {validationErrors.prix_unitaire && (
-                <p className="mt-1 text-sm text-red-400">{validationErrors.prix_unitaire}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="stock" className="block text-sm font-medium text-gray-300 mb-2">
-                Quantité en stock *
-              </label>
-              <input
-                type="number"
-                id="stock"
-                name="stock"
-                value={formData.stock}
-                onChange={handleChange}
-                min="0"
-                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
-                  validationErrors.stock ? 'border-red-500' : 'border-gray-600'
-                }`}
-                placeholder="0"
-              />
-              {validationErrors.stock && (
-                <p className="mt-1 text-sm text-red-400">{validationErrors.stock}</p>
-              )}
-            </div>
           </div>
 
           <div className="flex justify-end space-x-4 pt-6 border-t border-gray-600">

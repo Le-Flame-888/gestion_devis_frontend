@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { quotesAPI, clientsAPI, productsAPI } from '../../services/api';
-import type { Quote, Client, Product } from '../../types';
+import type { Client, Product } from '../../types';
 import { ArrowLeftIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 // Define the API base URL
@@ -317,7 +317,7 @@ const QuoteForm: React.FC = () => {
       const product = products.find(p => p.id === Number(value));
       if (product) {
         setDetails(prev => prev.map((detail, i) => 
-          i === index ? { ...detail, prix_unitaire: product.prix_unitaire.toString() } : detail
+          i === index ? { ...detail, prix_unitaire: (product?.prix_vente || 0).toString() } : detail
         ));
       }
     }
@@ -535,7 +535,7 @@ const QuoteForm: React.FC = () => {
                         <option value="">Sélectionner un produit</option>
                         {products.map(product => (
                           <option key={product.id} value={product.id}>
-                            {product.nom} - {Number(product.prix_unitaire).toFixed(2)} MAD/{product.unite}
+                            {product?.nom} - {(product?.prix_vente || 0).toFixed(2)} MAD/{product?.unite || ''}
                           </option>
                         ))}
                       </select>
@@ -598,12 +598,19 @@ const QuoteForm: React.FC = () => {
                   </div>
 
                   {detail.quantite && detail.prix_unitaire && (
-                    <div className="mt-2 text-right">
-                      <span className="text-sm text-gray-300">
-                        Total de la ligne : <span className="text-white font-medium">
+                    <div className="mt-2 space-y-1">
+                      <div className="flex justify-between text-sm text-gray-300">
+                        <span>Total HT :</span>
+                        <span className="text-white font-medium">
                           {(Number(detail.quantite) * Number(detail.prix_unitaire)).toFixed(2)} MAD
                         </span>
-                      </span>
+                      </div>
+                      <div className="flex justify-between text-sm text-gray-300">
+                        <span>Total TTC :</span>
+                        <span className="text-white font-medium">
+                          {(Number(detail.quantite) * Number(detail.prix_unitaire) * (1 + (formData.tva || 0) / 100)).toFixed(2)} MAD
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>

@@ -17,10 +17,12 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const result = await login(email, password);
+      if (result.success) {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Échec de la connexion');
+      setError(err.message || 'Échec de la connexion');
     } finally {
       setLoading(false);
     }

@@ -10,10 +10,9 @@ export interface User {
 export interface Product {
   id: number;
   nom: string;
-  description: string;
-  prix_unitaire: number;
+  categorie: 'Marbre' | 'Carrelage' | 'Autre';
   unite: 'm2' | 'm3';
-  stock: number;
+  prix_vente: number;
   created_at: string;
   updated_at: string;
 }

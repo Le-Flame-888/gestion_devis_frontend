@@ -58,25 +58,14 @@ const ClientForm: React.FC = () => {
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
 
+    // Seul le nom est obligatoire
     if (!formData.nom.trim()) {
       errors.nom = 'Le nom du client est requis';
     }
-    if (!formData.email.trim()) {
-      errors.email = 'L\'email est requis';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+
+    // Validation optionnelle de l'email s'il est renseigné
+    if (formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
       errors.email = 'L\'email est invalide';
-    }
-    if (!formData.telephone.trim()) {
-      errors.telephone = 'Le numéro de téléphone est requis';
-    }
-    if (!formData.adresse.trim()) {
-      errors.adresse = 'L\'adresse est requise';
-    }
-    if (!formData.ville.trim()) {
-      errors.ville = 'La ville est requise';
-    }
-    if (!formData.code_postal.trim()) {
-      errors.code_postal = 'Le code postal est requis';
     }
 
     setValidationErrors(errors);
@@ -183,7 +172,7 @@ const ClientForm: React.FC = () => {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
-                Email *
+                Email
               </label>
               <input
                 type="email"
@@ -204,7 +193,7 @@ const ClientForm: React.FC = () => {
 
           <div>
             <label htmlFor="telephone" className="block text-sm font-medium text-gray-300 mb-1">
-              Téléphone *
+              Téléphone
             </label>
             <input
               type="tel"
@@ -224,7 +213,7 @@ const ClientForm: React.FC = () => {
 
           <div>
             <label htmlFor="adresse" className="block text-sm font-medium text-gray-300 mb-1">
-              Adresse *
+              Adresse
             </label>
             <textarea
               id="adresse"
@@ -245,7 +234,7 @@ const ClientForm: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="ville" className="block text-sm font-medium text-gray-300 mb-1">
-                Ville *
+                Ville
               </label>
               <input
                 type="text"
@@ -265,7 +254,7 @@ const ClientForm: React.FC = () => {
 
             <div>
               <label htmlFor="code_postal" className="block text-sm font-medium text-gray-300 mb-1">
-                Code postal *
+                Code postal
               </label>
               <input
                 type="text"

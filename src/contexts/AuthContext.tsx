@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { User, AuthResponse } from '../types/index';
+import type { User } from '../types/index';
 import { authAPI } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<{ success: boolean }>;
+  logout: () => Promise<void>;
   loading: boolean;
 }
 
@@ -51,14 +51,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('Attempting login with:', { email });
       const response = await authAPI.login(email, password);
-      const { access_token: newToken, user: userData }: AuthResponse = response.data;
+      console.log('Login response:', response);
       
+      if (!response.data) {
+        throw new Error('No data received from server');
+      }
+      
+      const { access_token: newToken, user: userData } = response.data;
+      
+      if (!newToken || !userData) {
+        console.error('Invalid response format:', response.data);
+        throw new Error('Invalid response format from server');
+      }
+      
+      console.log('Login successful, setting token and user data');
       localStorage.setItem('auth_token', newToken);
       setToken(newToken);
       setUser(userData);
-    } catch (error) {
-      throw error;
+      return { success: true };
+    } catch (error: any) {
+      console.error('Login error:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers,
+      });
+      
+      let errorMessage = 'Login failed. Please try again.';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      throw new Error(errorMessage);
     }
   };
 

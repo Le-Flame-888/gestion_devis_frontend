@@ -5,11 +5,32 @@ const API_BASE_URL = 'http://localhost:8000/api';
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
   },
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
 });
+
+// Fetch CSRF cookie before making any requests
+const fetchCsrfToken = async () => {
+  try {
+    await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+      withCredentials: true,
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      }
+    });
+  } catch (error) {
+    console.error('Failed to fetch CSRF token:', error);
+  }
+};
+
+// Fetch CSRF token on initial load
+fetchCsrfToken();
 
 // Add auth token to requests
 api.interceptors.request.use((config) => {
@@ -24,6 +45,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.error('API Error:', error);
+    
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
       // Don't redirect here, let the AuthContext handle it
@@ -47,7 +70,7 @@ api.interceptors.response.use(
       }
       
       // Return a custom error with the formatted errors
-      return Promise.reject({
+      const formattedError = {
         ...error,
         response: {
           ...error.response,
@@ -56,9 +79,23 @@ api.interceptors.response.use(
             formattedErrors
           }
         }
+      };
+      
+      console.error('Formatted validation error:', formattedError);
+      return Promise.reject(formattedError);
+    }
+    
+    // Handle network errors
+    if (!error.response) {
+      console.error('Network Error:', error);
+      return Promise.reject({
+        ...error,
+        message: 'Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet.'
       });
     }
     
+    // Handle other errors
+    console.error('Unhandled API error:', error);
     return Promise.reject(error);
   }
 );
