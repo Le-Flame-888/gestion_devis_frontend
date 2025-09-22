@@ -40,17 +40,17 @@ const QuoteList: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
-      draft: 'bg-gray-600 text-gray-200',
-      sent: 'bg-blue-600 text-blue-100',
-      accepted: 'bg-green-600 text-green-100',
-      refused: 'bg-red-600 text-red-100',
+      brouillon: 'bg-gray-600 text-gray-200',
+      envoye: 'bg-blue-600 text-blue-100',
+      accepte: 'bg-green-600 text-green-100',
+      refuse: 'bg-red-600 text-red-100',
     };
     
     const statusLabels = {
-      draft: 'Brouillon',
-      sent: 'Envoyé',
-      accepted: 'Accepté',
-      refused: 'Refusé',
+      brouillon: 'Brouillon',
+      envoye: 'Envoyé',
+      accepte: 'Accepté',
+      refuse: 'Refusé',
     };
 
     return (

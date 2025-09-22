@@ -6,7 +6,7 @@ import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 const ProductList: React.FC = () => {
   const navigate = useNavigate();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Array<Product & { stock?: number; description?: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -80,7 +80,7 @@ const ProductList: React.FC = () => {
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-bold text-white">Produits</h1>
           <p className="mt-2 text-sm text-gray-300">
-            Liste de tous les produits de votre catalogue avec leur nom, description, prix et stock.
+            Liste de tous les produits de votre catalogue avec leur nom, description et catégorie.
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -105,13 +105,10 @@ const ProductList: React.FC = () => {
                   Produit
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Prix
+                  Catégorie
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Unité
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Stock
                 </th>
                 <th className="relative px-6 py-3">
                   <span className="sr-only">Actions</span>
@@ -126,27 +123,18 @@ const ProductList: React.FC = () => {
                       <div className="text-sm font-medium text-white">
                         {product.nom}
                       </div>
-                      <div className="text-sm text-gray-300">
-                        {product.description}
-                      </div>
+                      {product.description && (
+                        <div className="text-sm text-gray-300">
+                          {product.description}
+                        </div>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                    {Number(product.prix_unitaire).toFixed(2)} MAD
+                    {product.categorie}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     {product.unite}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      Number(product.stock) > 10 
-                        ? 'bg-green-100 text-green-800' 
-                        : Number(product.stock) > 0 
-                        ? 'bg-yellow-100 text-yellow-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {product.stock}
-                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button

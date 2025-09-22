@@ -12,8 +12,7 @@ interface QuoteFormData {
   client_id: string;
   date_devis: string;
   date_validite: string;
-  statut: 'draft' | 'sent' | 'accepted' | 'refused';
-  tva?: number; // Optional TVA field that will be removed before sending to API
+  statut: 'brouillon' | 'envoye' | 'accepte' | 'refuse';
 }
 
 interface QuoteDetail {
@@ -32,8 +31,7 @@ const QuoteForm: React.FC = () => {
     client_id: '',
     date_devis: new Date().toISOString().split('T')[0],
     date_validite: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    statut: 'draft',
-    tva: 0, // Default TVA value that will be removed before sending to API
+    statut: 'brouillon',
   });
   const [details, setDetails] = useState<QuoteDetail[]>([
     { product_id: '', quantite: '', prix_unitaire: '' }
@@ -95,7 +93,6 @@ const QuoteForm: React.FC = () => {
         date_devis: quote.date_devis.split('T')[0],
         date_validite: quote.date_validite.split('T')[0],
         statut: quote.statut,
-        tva: quote.tva || 0,
       });
       if (quote.details && quote.details.length > 0) {
         setDetails(quote.details.map((detail: any) => ({
@@ -157,7 +154,7 @@ const QuoteForm: React.FC = () => {
         date_devis: formData.date_devis,
         date_validite: formData.date_validite,
         statut: formData.statut,
-        // Note: TVA is intentionally omitted as it's not in the database
+        
         products: details.map(detail => ({
           product_id: Number(detail.product_id),
           quantite: Number(detail.quantite),
@@ -340,26 +337,19 @@ const QuoteForm: React.FC = () => {
   };
 
   const calculateTotals = () => {
-    const totalHT = details.reduce((sum, detail) => {
-      const quantity = Number(detail.quantite) || 0;
-      const price = Number(detail.prix_unitaire) || 0;
+    // Calculate total by summing up all line items
+    const total = details.reduce((sum, detail) => {
+      const quantity = parseFloat(detail.quantite) || 0;
+      const price = parseFloat(detail.prix_unitaire) || 0;
       return sum + (quantity * price);
     }, 0);
-  
-    // Calculate TVA amount based on the form's TVA rate (default 0)
-    const tvaRate = formData.tva || 0;
-    const tvaAmount = (totalHT * tvaRate) / 100;
-    const totalTTC = totalHT + tvaAmount;
 
     return { 
-      totalHT, 
-      tvaAmount,
-      totalTTC,
-      tvaRate
+      totalTTC: total // TTC = HT (pas de TVA)
     };
   };
 
-  const { totalHT, tvaAmount, totalTTC, tvaRate } = calculateTotals();
+  const { totalTTC } = calculateTotals();
 
   if (loading && isEdit) {
     return (
@@ -494,10 +484,10 @@ const QuoteForm: React.FC = () => {
                 onChange={handleChange}
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors"
               >
-                <option value="draft">Brouillon</option>
-                <option value="sent">Envoyé</option>
-                <option value="accepted">Accepté</option>
-                <option value="refused">Refusé</option>
+                <option value="brouillon">Brouillon</option>
+                <option value="envoye">Envoyé</option>
+                <option value="accepte">Accepté</option>
+                <option value="refuse">Refusé</option>
               </select>
             </div>
           </div>
@@ -535,7 +525,7 @@ const QuoteForm: React.FC = () => {
                         <option value="">Sélectionner un produit</option>
                         {products.map(product => (
                           <option key={product.id} value={product.id}>
-                            {product?.nom} - {(product?.prix_vente || 0).toFixed(2)} MAD/{product?.unite || ''}
+                            {product?.nom} - {product?.categorie} ({product?.unite || ''})
                           </option>
                         ))}
                       </select>
@@ -606,9 +596,9 @@ const QuoteForm: React.FC = () => {
                         </span>
                       </div>
                       <div className="flex justify-between text-sm text-gray-300">
-                        <span>Total TTC :</span>
+                        <span>Total :</span>
                         <span className="text-white font-medium">
-                          {(Number(detail.quantite) * Number(detail.prix_unitaire) * (1 + (formData.tva || 0) / 100)).toFixed(2)} MAD
+                          {(Number(detail.quantite) * Number(detail.prix_unitaire)).toFixed(2)} MAD
                         </span>
                       </div>
                     </div>
@@ -622,16 +612,6 @@ const QuoteForm: React.FC = () => {
           <div className="bg-gray-700 rounded-lg p-4">
             <h4 className="text-lg font-medium text-white mb-3">Récapitulatif du devis</h4>
             <div className="space-y-2">
-              <div className="flex justify-between text-gray-300">
-                <span>Sous-total :</span>
-                <span>{totalHT.toFixed(2)} MAD</span>
-              </div>
-              {tvaRate > 0 && (
-                <div className="flex justify-between text-gray-300">
-                  <span>TVA ({tvaRate}%) :</span>
-                  <span>{tvaAmount.toFixed(2)} MAD</span>
-                </div>
-              )}
               <div className="flex justify-between text-white font-medium text-lg border-t border-gray-600 pt-2 mt-2">
                 <span>Total TTC :</span>
                 <span>{totalTTC.toFixed(2)} MAD</span>

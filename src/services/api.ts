@@ -139,6 +139,7 @@ export const quotesAPI = {
   update: (id: number, data: any) => api.put(`/quotes/${id}`, data),
   delete: (id: number) => api.delete(`/quotes/${id}`),
   addProduct: (quoteId: number, data: any) => api.post(`/quotes/${quoteId}/products`, data),
+  updateProduct: (quoteId: number, detailId: number, data: any) => api.put(`/quotes/${quoteId}/products/${detailId}`, data),
   removeProduct: (quoteId: number, detailId: number) => api.delete(`/quotes/${quoteId}/products/${detailId}`),
 };
 
