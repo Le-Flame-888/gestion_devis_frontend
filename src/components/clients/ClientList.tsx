@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { clientsAPI } from '../../services/api';
 import type { Client } from '../../types';
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 
 const ClientList: React.FC = () => {
   const navigate = useNavigate();
@@ -103,23 +103,28 @@ const ClientList: React.FC = () => {
                     <div className="text-sm text-white">{client.ville}</div>
                     <div className="text-sm text-gray-300">{client.code_postal}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => navigate(`/clients/edit/${client.id}`)}
-                        className="text-blue-400 hover:text-blue-300 transition-colors"
-                        title="Modifier"
-                      >
-                        <PencilIcon className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(client.id)}
-                        className="text-red-400 hover:text-red-300 transition-colors"
-                        title="Supprimer"
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                      </button>
-                    </div>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <button
+                      onClick={() => navigate(`/clients/${client.id}/quotes`)}
+                      className="text-green-400 hover:text-green-300"
+                      title="Voir les devis"
+                    >
+                      <DocumentTextIcon className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={() => navigate(`/clients/edit/${client.id}`)}
+                      className="text-blue-400 hover:text-blue-300"
+                      title="Modifier"
+                    >
+                      <PencilIcon className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(client.id)}
+                      className="text-red-400 hover:text-red-300"
+                      title="Supprimer"
+                    >
+                      <TrashIcon className="h-5 w-5" />
+                    </button>
                   </td>
                 </tr>
               ))}

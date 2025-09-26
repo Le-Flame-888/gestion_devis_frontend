@@ -7,7 +7,6 @@ import {
   CubeIcon,
   DocumentTextIcon,
   ArrowRightOnRectangleIcon,
-  ChartBarIcon,
   PlusIcon,
 } from '@heroicons/react/24/outline';
 
@@ -25,6 +24,7 @@ const Layout: React.FC = () => {
     { name: 'Tableau de bord', href: '/dashboard', icon: HomeIcon },
     { name: 'Tous les devis', href: '/quotes', icon: DocumentTextIcon },
     { name: 'Nouveau devis', href: '/quotes/new', icon: PlusIcon },
+    { name: 'Devis par client', href: '/client-quotes', icon: UserGroupIcon },
     { name: 'Clients', href: '/clients', icon: UserGroupIcon },
     { name: 'Produits', href: '/products', icon: CubeIcon },
   ];

@@ -13,6 +13,7 @@ interface QuoteFormData {
   date_devis: string;
   date_validite: string;
   statut: 'brouillon' | 'envoye' | 'accepte' | 'refuse';
+  tva: number;
 }
 
 interface QuoteDetail {
@@ -32,6 +33,7 @@ const QuoteForm: React.FC = () => {
     date_devis: new Date().toISOString().split('T')[0],
     date_validite: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     statut: 'brouillon',
+    tva: 20, // TVA par défaut à 20%
   });
   const [details, setDetails] = useState<QuoteDetail[]>([
     { product_id: '', quantite: '', prix_unitaire: '' }
@@ -93,6 +95,7 @@ const QuoteForm: React.FC = () => {
         date_devis: quote.date_devis.split('T')[0],
         date_validite: quote.date_validite.split('T')[0],
         statut: quote.statut,
+        tva: quote.tva || 20, // Set TVA from quote or default to 20%
       });
       if (quote.details && quote.details.length > 0) {
         setDetails(quote.details.map((detail: any) => ({
@@ -154,6 +157,7 @@ const QuoteForm: React.FC = () => {
         date_devis: formData.date_devis,
         date_validite: formData.date_validite,
         statut: formData.statut,
+        tva: Number(formData.tva), // Include TVA in the data sent to the server
         
         products: details.map(detail => ({
           product_id: Number(detail.product_id),
@@ -337,19 +341,26 @@ const QuoteForm: React.FC = () => {
   };
 
   const calculateTotals = () => {
-    // Calculate total by summing up all line items
-    const total = details.reduce((sum, detail) => {
+    // Calculate total HT by summing up all line items
+    const totalHT = details.reduce((sum, detail) => {
       const quantity = parseFloat(detail.quantite) || 0;
       const price = parseFloat(detail.prix_unitaire) || 0;
       return sum + (quantity * price);
     }, 0);
 
+    // Calculate TVA (20% of total HT)
+    const tvaRate = formData.tva / 100;
+    const tvaAmount = totalHT * tvaRate;
+    const totalTTC = totalHT + tvaAmount;
+
     return { 
-      totalTTC: total // TTC = HT (pas de TVA)
+      totalHT,
+      tvaAmount,
+      totalTTC
     };
   };
 
-  const { totalTTC } = calculateTotals();
+  const { totalHT, tvaAmount, totalTTC } = calculateTotals();
 
   if (loading && isEdit) {
     return (
@@ -435,6 +446,22 @@ const QuoteForm: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label htmlFor="tva" className="block text-sm font-medium text-gray-300 mb-2">
+                TVA (%)
+              </label>
+              <input
+                type="number"
+                id="tva"
+                name="tva"
+                value={formData.tva}
+                onChange={handleChange}
+                min="0"
+                step="0.01"
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors"
+              />
+            </div>
+
             <div>
               <label htmlFor="date_devis" className="block text-sm font-medium text-gray-300 mb-2">
                 Date du devis *
@@ -595,12 +622,6 @@ const QuoteForm: React.FC = () => {
                           {(Number(detail.quantite) * Number(detail.prix_unitaire)).toFixed(2)} MAD
                         </span>
                       </div>
-                      <div className="flex justify-between text-sm text-gray-300">
-                        <span>Total :</span>
-                        <span className="text-white font-medium">
-                          {(Number(detail.quantite) * Number(detail.prix_unitaire)).toFixed(2)} MAD
-                        </span>
-                      </div>
                     </div>
                   )}
                 </div>
@@ -612,6 +633,14 @@ const QuoteForm: React.FC = () => {
           <div className="bg-gray-700 rounded-lg p-4">
             <h4 className="text-lg font-medium text-white mb-3">Récapitulatif du devis</h4>
             <div className="space-y-2">
+              <div className="flex justify-between text-gray-300">
+                <span>Total HT :</span>
+                <span>{totalHT.toFixed(2)} MAD</span>
+              </div>
+              <div className="flex justify-between text-gray-300">
+                <span>TVA ({formData.tva}%) :</span>
+                <span>{tvaAmount.toFixed(2)} MAD</span>
+              </div>
               <div className="flex justify-between text-white font-medium text-lg border-t border-gray-600 pt-2 mt-2">
                 <span>Total TTC :</span>
                 <span>{totalTTC.toFixed(2)} MAD</span>

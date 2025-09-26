@@ -135,9 +135,25 @@ export const clientsAPI = {
 export const quotesAPI = {
   getAll: (page = 1) => api.get(`/quotes?page=${page}`),
   getById: (id: number) => api.get(`/quotes/${id}`),
+  getByClient: (clientId: number) => api.get(`/clients/${clientId}/quotes`),
   create: (data: any) => api.post('/quotes', data),
   update: (id: number, data: any) => api.put(`/quotes/${id}`, data),
   delete: (id: number) => api.delete(`/quotes/${id}`),
+  getItems: async (quoteId: number) => {
+    console.log(`Fetching items for quote ${quoteId} from ${API_BASE_URL}/quotes/${quoteId}/items`);
+    try {
+      const response = await api.get(`/quotes/${quoteId}/items`);
+      console.log(`Response for quote ${quoteId} items:`, {
+        status: response.status,
+        data: response.data,
+        headers: response.headers
+      });
+      return response;
+    } catch (error) {
+      console.error(`Error fetching items for quote ${quoteId}:`, error);
+      throw error;
+    }
+  },
   addProduct: (quoteId: number, data: any) => api.post(`/quotes/${quoteId}/products`, data),
   updateProduct: (quoteId: number, detailId: number, data: any) => api.put(`/quotes/${quoteId}/products/${detailId}`, data),
   removeProduct: (quoteId: number, detailId: number) => api.delete(`/quotes/${quoteId}/products/${detailId}`),

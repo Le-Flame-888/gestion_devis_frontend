@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
@@ -11,11 +11,13 @@ import ClientList from './components/clients/ClientList';
 import ClientForm from './components/clients/ClientForm';
 import QuoteList from './components/quotes/QuoteList';
 import QuoteForm from './components/quotes/QuoteForm';
+import ClientQuotesPage from './pages/ClientQuotesPage';
+import ClientQuotesListPage from './pages/ClientQuotesListPage';
 
-function App() {
+const App: React.FC = () => {
   return (
     <AuthProvider>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route
@@ -34,12 +36,14 @@ function App() {
             <Route path="clients" element={<ClientList />} />
             <Route path="clients/new" element={<ClientForm />} />
             <Route path="clients/edit/:id" element={<ClientForm />} />
+            <Route path="clients/:clientId/quotes" element={<ClientQuotesPage />} />
             <Route path="quotes" element={<QuoteList />} />
             <Route path="quotes/new" element={<QuoteForm />} />
             <Route path="quotes/edit/:id" element={<QuoteForm />} />
+            <Route path="client-quotes" element={<ClientQuotesListPage />} />
           </Route>
         </Routes>
-      </Router>
+      </BrowserRouter>
     </AuthProvider>
   );
 }
