@@ -239,11 +239,11 @@ const QuoteList: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
-      brouillon: 'bg-gray-600 text-gray-200',
-      envoye: 'bg-blue-600 text-blue-100',
-      accepte: 'bg-green-600 text-green-100',
-      refuse: 'bg-red-600 text-red-100',
-      en_attente: 'bg-yellow-600 text-yellow-100',
+      brouillon: 'bg-neutral-500 text-white',
+      envoye: 'bg-status-info text-white',
+      accepte: 'bg-status-success text-white',
+      refuse: 'bg-status-error text-white',
+      en_attente: 'bg-status-warning text-neutral-900',
     };
     
     const statusLabels = {
@@ -268,7 +268,7 @@ const QuoteList: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-accent"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -277,17 +277,16 @@ const QuoteList: React.FC = () => {
     <div className="px-4 py-6 sm:px-0">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-2xl font-bold text-white">Devis</h1>
-          <p className="mt-2 text-sm text-gray-300">
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Devis</h1>
+          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
             Liste de tous les devis avec leur statut, client et montant total.
           </p>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none space-x-3">
           <button
             type="button"
             onClick={() => navigate('/quotes/new')}
-            className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-primary shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary transition-colors"
-            style={{ backgroundColor: '#D7FEFA' }}
+            className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-neutral-900 bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors shadow-sm"
           >
             <PlusIcon className="h-4 w-4 mr-2" />
             Créer un devis
@@ -295,7 +294,7 @@ const QuoteList: React.FC = () => {
           <button
             type="button"
             onClick={exportToCSV}
-            className="ml-3 inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+            className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white bg-status-success hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-status-success focus:ring-offset-2 transition-colors shadow-sm"
           >
             <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
             Exporter CSV
@@ -304,26 +303,26 @@ const QuoteList: React.FC = () => {
       </div>
 
       <div className="mt-8">
-        <div className="bg-secondary rounded-lg shadow-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-600">
-            <thead className="bg-gray-700">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-card overflow-hidden">
+          <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
+            <thead className="bg-neutral-50 dark:bg-neutral-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-300 uppercase tracking-wider">
                   N° de devis
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Actions
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-300 uppercase tracking-wider">
+                  Client
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-300 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-300 uppercase tracking-wider">
                   Statut
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-300 uppercase tracking-wider">
                   TVA
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-300 uppercase tracking-wider">
                   Total HT
                 </th>
                 <th className="relative px-6 py-3">
@@ -331,29 +330,29 @@ const QuoteList: React.FC = () => {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-secondary divide-y divide-gray-600">
+            <tbody className="bg-white dark:bg-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-700">
               {quotes.map((quote) => (
-                <tr key={quote.id} className="hover:bg-gray-700 transition-colors">
+                <tr key={quote.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-white">
+                    <div className="text-sm font-medium text-neutral-900 dark:text-white">
                       {quote.numero_devis}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-white">
+                    <div className="text-sm text-neutral-900 dark:text-white">
                       {quote.client?.nom || 'N/A'}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600 dark:text-neutral-300">
                     {new Date(quote.date_devis).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getStatusBadge(quote.statut)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-white font-medium">
                     {quote.tva ? `${quote.tva}%` : '20%'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-white font-medium">
                     {(() => {
                       try {
                         // Get values with fallbacks
@@ -388,24 +387,24 @@ const QuoteList: React.FC = () => {
                       }
                     })()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                     <button
                       onClick={() => exportToPDF(quote)}
-                      className="text-blue-400 hover:text-blue-300 mr-4 transition-colors"
+                      className="text-neutral-600 hover:text-primary dark:text-neutral-400 dark:hover:text-primary transition-colors p-1 rounded"
                       title="Télécharger PDF"
                     >
                       <DocumentArrowDownIcon className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => navigate(`/quotes/edit/${quote.id}`)}
-                      className="text-accent hover:text-accent/80 mr-4 transition-colors"
+                      className="text-neutral-600 hover:text-status-info dark:text-neutral-400 dark:hover:text-status-info transition-colors p-1 rounded"
                       title="Éditer"
                     >
                       <PencilIcon className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(quote.id)}
-                      className="text-red-400 hover:text-red-300 transition-colors"
+                      className="text-neutral-600 hover:text-status-error dark:text-neutral-400 dark:hover:text-status-error transition-colors p-1 rounded"
                       title="Supprimer"
                     >
                       <TrashIcon className="h-4 w-4" />
@@ -420,22 +419,22 @@ const QuoteList: React.FC = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-between items-center mt-4">
+        <div className="flex justify-between items-center mt-6">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
           >
             Précédent
           </button>
-          <span className="text-sm text-gray-300">
+          <span className="text-sm text-neutral-600 dark:text-neutral-400">
             Page {currentPage} sur {totalPages}
           </span>
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
+            className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+           >
             Suivant
           </button>
         </div>

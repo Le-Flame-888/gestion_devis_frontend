@@ -375,26 +375,26 @@ const QuoteForm: React.FC = () => {
       <div className="mb-6">
         <button
           onClick={() => navigate('/quotes')}
-          className="inline-flex items-center text-accent hover:text-accent/80 transition-colors"
+          className="inline-flex items-center text-primary hover:text-primary/80 transition-colors font-medium"
         >
           <ArrowLeftIcon className="h-4 w-4 mr-2" />
-          Back to Quotes
+          Retour aux devis
         </button>
       </div>
 
-      <div className="bg-secondary rounded-lg shadow-lg p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-white">
+      <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-700/50 overflow-hidden p-6">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
             {isEdit ? 'Modifier le devis' : 'Nouveau devis'}
           </h1>
-          <p className="mt-2 text-sm text-gray-300">
+          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
             {isEdit ? 'Mettre à jour les informations du devis' : 'Créer un nouveau devis pour votre client'}
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 bg-red-900/20 border border-red-500 rounded-lg p-4">
-            <div className="text-sm text-red-300">{error}</div>
+          <div className="mb-6 bg-status-error/10 border border-status-error/30 rounded-lg p-4">
+            <div className="text-sm text-status-error dark:text-status-error-light">{error}</div>
           </div>
         )}
 
@@ -402,7 +402,7 @@ const QuoteForm: React.FC = () => {
           {/* Quote Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="numero_devis" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="numero_devis" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Numéro de devis *
               </label>
               <input
@@ -411,18 +411,18 @@ const QuoteForm: React.FC = () => {
                 name="numero_devis"
                 value={formData.numero_devis}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
-                  validationErrors.numero_devis ? 'border-red-500' : 'border-gray-600'
+                className={`w-full px-3 py-2 bg-white dark:bg-neutral-700 border rounded-lg text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors ${
+                  validationErrors.numero_devis ? 'border-status-error' : 'border-neutral-300 dark:border-neutral-600'
                 }`}
                 placeholder="DEV-20240101-001"
               />
               {validationErrors.numero_devis && (
-                <p className="mt-1 text-sm text-red-400">{validationErrors.numero_devis}</p>
+                <p className="mt-1 text-sm text-status-error dark:text-status-error-light">{validationErrors.numero_devis}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="client_id" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="client_id" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Client *
               </label>
               <select
@@ -430,24 +430,28 @@ const QuoteForm: React.FC = () => {
                 name="client_id"
                 value={formData.client_id}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
-                  validationErrors.client_id ? 'border-red-500' : 'border-gray-600'
+                className={`w-full px-3 py-2 bg-white dark:bg-neutral-700 border rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors ${
+                  validationErrors.client_id ? 'border-status-error' : 'border-neutral-300 dark:border-neutral-600'
                 }`}
               >
-                <option value="">Select a client</option>
+                <option value="">Sélectionner un client</option>
                 {clients.map(client => (
-                  <option key={client.id} value={client.id}>{client.nom}</option>
+                  <option key={client.id} value={client.id} className="text-neutral-900 dark:text-white">
+                    {client.nom}
+                  </option>
                 ))}
               </select>
               {validationErrors.client_id && (
-                <p className="mt-1 text-sm text-red-400">{validationErrors.client_id}</p>
+                <p className="mt-1 text-sm text-status-error dark:text-status-error-light">
+                  {validationErrors.client_id}
+                </p>
               )}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label htmlFor="tva" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="tva" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 TVA (%)
               </label>
               <input
@@ -458,12 +462,12 @@ const QuoteForm: React.FC = () => {
                 onChange={handleChange}
                 min="0"
                 step="0.01"
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors"
+                className="w-full px-3 py-2 bg-white dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               />
             </div>
 
             <div>
-              <label htmlFor="date_devis" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="date_devis" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Date du devis *
               </label>
               <input
@@ -472,17 +476,19 @@ const QuoteForm: React.FC = () => {
                 name="date_devis"
                 value={formData.date_devis}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
-                  validationErrors.date_devis ? 'border-red-500' : 'border-gray-600'
+                className={`w-full px-3 py-2 bg-white dark:bg-neutral-700 border rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors ${
+                  validationErrors.date_devis ? 'border-status-error' : 'border-neutral-300 dark:border-neutral-600'
                 }`}
               />
               {validationErrors.date_devis && (
-                <p className="mt-1 text-sm text-red-400">{validationErrors.date_devis}</p>
+                <p className="mt-1 text-sm text-status-error dark:text-status-error-light">
+                  {validationErrors.date_devis}
+                </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="date_validite" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="date_validite" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Valable jusqu'au *
               </label>
               <input
@@ -491,17 +497,19 @@ const QuoteForm: React.FC = () => {
                 name="date_validite"
                 value={formData.date_validite}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
-                  validationErrors.date_validite ? 'border-red-500' : 'border-gray-600'
+                className={`w-full px-3 py-2 bg-white dark:bg-neutral-700 border rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors ${
+                  validationErrors.date_validite ? 'border-status-error' : 'border-neutral-300 dark:border-neutral-600'
                 }`}
               />
               {validationErrors.date_validite && (
-                <p className="mt-1 text-sm text-red-400">{validationErrors.date_validite}</p>
+                <p className="mt-1 text-sm text-status-error dark:text-status-error-light">
+                  {validationErrors.date_validite}
+                </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="statut" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="statut" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Statut
               </label>
               <select
@@ -509,12 +517,12 @@ const QuoteForm: React.FC = () => {
                 name="statut"
                 value={formData.statut}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors"
+                className="w-full px-3 py-2 bg-white dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               >
-                <option value="brouillon">Brouillon</option>
-                <option value="envoye">Envoyé</option>
-                <option value="accepte">Accepté</option>
-                <option value="refuse">Refusé</option>
+                <option value="brouillon" className="text-neutral-900 dark:text-white">Brouillon</option>
+                <option value="envoye" className="text-neutral-900 dark:text-white">Envoyé</option>
+                <option value="accepte" className="text-neutral-900 dark:text-white">Accepté</option>
+                <option value="refuse" className="text-neutral-900 dark:text-white">Refusé</option>
               </select>
             </div>
           </div>
@@ -522,12 +530,11 @@ const QuoteForm: React.FC = () => {
           {/* Quote Details */}
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-white">Articles du devis</h3>
+              <h3 className="text-lg font-medium text-neutral-900 dark:text-white">Articles du devis</h3>
               <button
                 type="button"
                 onClick={addDetail}
-                className="inline-flex items-center px-3 py-2 text-sm font-medium text-primary rounded-lg hover:opacity-90 transition-colors"
-                style={{ backgroundColor: '#D7FEFA' }}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors"
               >
                 <PlusIcon className="h-4 w-4 mr-2" />
                 Ajouter un article
@@ -536,33 +543,35 @@ const QuoteForm: React.FC = () => {
 
             <div className="space-y-4">
               {details.map((detail, index) => (
-                <div key={index} className="bg-gray-700 rounded-lg p-4">
+                <div key={index} className="bg-neutral-50 dark:bg-neutral-700/30 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700/50">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                         Produit *
                       </label>
                       <select
                         value={detail.product_id}
                         onChange={(e) => handleDetailChange(index, 'product_id', e.target.value)}
-                        className={`w-full px-3 py-2 bg-gray-600 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
-                          validationErrors[`detail_${index}_product`] ? 'border-red-500' : 'border-gray-500'
+                        className={`w-full px-3 py-2 bg-white dark:bg-neutral-700 border rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors ${
+                          validationErrors[`detail_${index}_product`] ? 'border-status-error' : 'border-neutral-300 dark:border-neutral-600'
                         }`}
                       >
-                        <option value="">Sélectionner un produit</option>
+                        <option value="" className="text-neutral-400 dark:text-neutral-500">Sélectionner un produit</option>
                         {products.map(product => (
-                          <option key={product.id} value={product.id}>
+                          <option key={product.id} value={product.id} className="text-neutral-900 dark:text-white">
                             {product?.nom} - {product?.categorie} ({product?.unite || ''})
                           </option>
                         ))}
                       </select>
                       {validationErrors[`detail_${index}_product`] && (
-                        <p className="mt-1 text-sm text-red-400">{validationErrors[`detail_${index}_product`]}</p>
+                        <p className="mt-1 text-sm text-status-error dark:text-status-error-light">
+                          {validationErrors[`detail_${index}_product`]}
+                        </p>
                       )}
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                         Quantité *
                       </label>
                       <input
@@ -571,19 +580,21 @@ const QuoteForm: React.FC = () => {
                         onChange={(e) => handleDetailChange(index, 'quantite', e.target.value)}
                         min="0"
                         step="0.01"
-                        className={`w-full px-3 py-2 bg-gray-600 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
-                          validationErrors[`detail_${index}_quantite`] ? 'border-red-500' : 'border-gray-500'
+                        className={`w-full px-3 py-2 bg-white dark:bg-neutral-700 border rounded-lg text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors ${
+                          validationErrors[`detail_${index}_quantite`] ? 'border-status-error' : 'border-neutral-300 dark:border-neutral-600'
                         }`}
                         placeholder="0"
                       />
                       {validationErrors[`detail_${index}_quantite`] && (
-                        <p className="mt-1 text-sm text-red-400">{validationErrors[`detail_${index}_quantite`]}</p>
+                        <p className="mt-1 text-sm text-status-error dark:text-status-error-light">
+                          {validationErrors[`detail_${index}_quantite`]}
+                        </p>
                       )}
                     </div>
 
                     <div className="flex items-end">
                       <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                           Prix unitaire (MAD) *
                         </label>
                         <input
@@ -592,20 +603,22 @@ const QuoteForm: React.FC = () => {
                           onChange={(e) => handleDetailChange(index, 'prix_unitaire', e.target.value)}
                           min="0"
                           step="0.01"
-                          className={`w-full px-3 py-2 bg-gray-600 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
-                            validationErrors[`detail_${index}_prix`] ? 'border-red-500' : 'border-gray-500'
+                          className={`w-full px-3 py-2 bg-white dark:bg-neutral-700 border rounded-lg text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors ${
+                            validationErrors[`detail_${index}_prix`] ? 'border-status-error' : 'border-neutral-300 dark:border-neutral-600'
                           }`}
                           placeholder="0.00"
                         />
                         {validationErrors[`detail_${index}_prix`] && (
-                          <p className="mt-1 text-sm text-red-400">{validationErrors[`detail_${index}_prix`]}</p>
+                          <p className="mt-1 text-sm text-status-error dark:text-status-error-light">
+                            {validationErrors[`detail_${index}_prix`]}
+                          </p>
                         )}
                       </div>
                       {details.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removeDetail(index)}
-                          className="ml-2 p-2 text-red-400 hover:text-red-300 transition-colors"
+                          className="ml-2 p-2 text-status-error hover:bg-status-error/10 rounded-full transition-colors"
                           title="Supprimer l'article"
                         >
                           <TrashIcon className="h-5 w-5" />
@@ -615,10 +628,10 @@ const QuoteForm: React.FC = () => {
                   </div>
 
                   {detail.quantite && detail.prix_unitaire && (
-                    <div className="mt-2 space-y-1">
-                      <div className="flex justify-between text-sm text-gray-300">
+                    <div className="mt-3 pt-2 border-t border-neutral-200 dark:border-neutral-700/50 space-y-1">
+                      <div className="flex justify-between text-sm text-neutral-600 dark:text-neutral-300">
                         <span>Total HT :</span>
-                        <span className="text-white font-medium">
+                        <span className="text-neutral-900 dark:text-white font-medium">
                           {(Number(detail.quantite) * Number(detail.prix_unitaire)).toFixed(2)} MAD
                         </span>
                       </div>
@@ -630,39 +643,46 @@ const QuoteForm: React.FC = () => {
           </div>
 
           {/* Totals */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <h4 className="text-lg font-medium text-white mb-3">Récapitulatif du devis</h4>
-            <div className="space-y-2">
-              <div className="flex justify-between text-gray-300">
+          <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-lg p-5 border border-neutral-200 dark:border-neutral-700/50">
+            <h4 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Récapitulatif du devis</h4>
+            <div className="space-y-3">
+              <div className="flex justify-between text-neutral-700 dark:text-neutral-300">
                 <span>Total HT :</span>
-                <span>{totalHT.toFixed(2)} MAD</span>
+                <span className="font-medium">{totalHT.toFixed(2)} MAD</span>
               </div>
-              <div className="flex justify-between text-gray-300">
+              <div className="flex justify-between text-neutral-700 dark:text-neutral-300">
                 <span>TVA ({formData.tva}%) :</span>
-                <span>{tvaAmount.toFixed(2)} MAD</span>
+                <span className="font-medium">{tvaAmount.toFixed(2)} MAD</span>
               </div>
-              <div className="flex justify-between text-white font-medium text-lg border-t border-gray-600 pt-2 mt-2">
+              <div className="flex justify-between text-neutral-900 dark:text-white font-semibold text-lg border-t border-neutral-200 dark:border-neutral-700/50 pt-3 mt-2">
                 <span>Total TTC :</span>
-                <span>{totalTTC.toFixed(2)} MAD</span>
+                <span className="text-primary dark:text-primary-light">{totalTTC.toFixed(2)} MAD</span>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-600">
+          <div className="flex justify-end space-x-3 pt-6 border-t border-neutral-200 dark:border-neutral-700/50">
             <button
               type="button"
               onClick={() => navigate('/quotes')}
-              className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+              className="px-4 py-2.5 text-sm font-medium text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-1 transition-colors"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-primary rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              style={{ backgroundColor: '#D7FEFA' }}
+              className="px-6 py-2.5 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-1 disabled:opacity-70 disabled:cursor-not-allowed transition-colors flex items-center"
             >
-              {loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour le devis' : 'Créer le devis'}
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Enregistrement...
+                </>
+              ) : isEdit ? 'Mettre à jour le devis' : 'Créer le devis'}
             </button>
           </div>
         </form>

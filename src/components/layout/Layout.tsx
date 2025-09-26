@@ -32,18 +32,18 @@ const Layout: React.FC = () => {
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <div className="min-h-screen bg-dark-bg">
+    <div className="min-h-screen bg-background-light dark:bg-background-dark">
       {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar-dark">
+      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-neutral-900 border-r border-neutral-800">
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-16 shrink-0 items-center px-6 border-b border-gray-700">
-            <h1 className="text-xl font-bold text-accent-cyan">Gestion des Devis</h1>
+          <div className="flex h-16 shrink-0 items-center px-6 border-b border-neutral-800">
+            <h1 className="text-xl font-bold text-primary dark:text-primary-light">Gestion des Devis</h1>
           </div>
 
           {/* Navigation */}
-          <nav className="flex flex-1 flex-col px-6 py-6">
-            <ul className="flex flex-1 flex-col gap-y-2">
+          <nav className="flex flex-1 flex-col px-4 py-6">
+            <ul className="flex flex-1 flex-col gap-y-1">
               {navigation.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.href);
@@ -51,14 +51,14 @@ const Layout: React.FC = () => {
                   <li key={item.name}>
                     <Link
                       to={item.href}
-                      className={`group flex gap-x-3 rounded-lg p-3 text-sm font-medium transition-colors ${
+                      className={`group flex items-center gap-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                         active
-                          ? 'bg-accent-cyan/10 text-accent-cyan'
-                          : 'text-text-secondary hover:text-text-primary hover:bg-gray-700/50'
+                          ? 'bg-primary/10 text-primary dark:text-primary-light font-semibold'
+                          : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
                       }`}
                     >
-                      <Icon className="h-5 w-5 shrink-0" />
-                      {item.name}
+                      <Icon className={`h-5 w-5 shrink-0 ${active ? 'text-primary dark:text-primary-light' : 'text-neutral-400 group-hover:text-white'}`} />
+                      <span>{item.name}</span>
                     </Link>
                   </li>
                 );
@@ -66,20 +66,20 @@ const Layout: React.FC = () => {
             </ul>
 
             {/* User Profile */}
-            <div className="mt-auto">
-              <div className="flex items-center gap-x-3 p-3 rounded-lg bg-dark-card">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-cyan/20">
-                  <span className="text-sm font-medium text-accent-cyan">
+            <div className="mt-auto pt-4 border-t border-neutral-800">
+              <div className="flex items-center gap-x-3 p-3 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 transition-colors">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
+                  <span className="text-sm font-medium text-primary dark:text-primary-light">
                     {user?.name?.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-text-primary">{user?.name}</p>
-                  <p className="text-xs text-text-secondary">{user?.email}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">{user?.name}</p>
+                  <p className="text-xs text-neutral-400 truncate">{user?.email}</p>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="text-text-secondary hover:text-text-primary transition-colors"
+                  className="text-neutral-400 hover:text-white transition-colors p-1 -mr-1"
                   title="Déconnexion"
                 >
                   <ArrowRightOnRectangleIcon className="h-5 w-5" />
@@ -91,10 +91,12 @@ const Layout: React.FC = () => {
       </div>
 
       {/* Main content */}
-      <div className="pl-64">
+      <div className="pl-64 transition-all duration-300">
         <main className="py-8">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <Outlet />
+            <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-700/50 overflow-hidden">
+              <Outlet />
+            </div>
           </div>
         </main>
       </div>

@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { quotesAPI, clientsAPI } from '../services/api';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { 
+  ArrowLeftIcon, 
+  DocumentTextIcon, 
+  CheckCircleIcon, 
+  ClockIcon, 
+  XCircleIcon,
+  ArrowDownTrayIcon,
+  PrinterIcon,
+  PencilIcon,
+  PlusIcon,
+  CurrencyEuroIcon
+} from '@heroicons/react/24/outline';
 
 // Déclaration du type JSX pour TypeScript
 declare global {
@@ -11,21 +22,6 @@ declare global {
       [elemName: string]: any;
     }
   }
-}
-
-// Interface pour la réponse de l'API
-interface ApiResponse<T = any> {
-  data: T;
-  included?: any[];
-  meta?: {
-    current_page?: number;
-    from?: number;
-    last_page?: number;
-    path?: string;
-    per_page?: number;
-    to?: number;
-    total?: number;
-  };
 }
 
 // Interface pour un article de devis
@@ -70,9 +66,6 @@ interface Quote {
   numero_devis?: string;
 }
 
-// Type pour le statut du devis
-type QuoteStatus = 'brouillon' | 'envoyé' | 'accepté' | 'refusé' | 'en_attente' | string;
-
 const ClientQuotesPage: React.FC = () => {
   const { clientId } = useParams<{ clientId: string }>();
   const navigate = useNavigate();
@@ -104,24 +97,50 @@ const ClientQuotesPage: React.FC = () => {
     };
   };
 
-  // Badge statut
+  // Badge statut amélioré
   const getStatusBadge = (status: string): JSX.Element => {
-    const statusClasses: Record<string, string> = {
-      'brouillon': 'bg-gray-100 text-gray-800',
-      'envoyé': 'bg-blue-100 text-blue-800',
-      'accepté': 'bg-green-100 text-green-800',
-      'refusé': 'bg-red-100 text-red-800',
-      'en_attente': 'bg-yellow-100 text-yellow-800',
+    const statusConfig: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
+      'brouillon': {
+        bg: 'bg-neutral-100 dark:bg-neutral-700/50',
+        text: 'text-neutral-800 dark:text-neutral-200',
+        icon: <DocumentTextIcon className="h-3.5 w-3.5 mr-1" />
+      },
+      'envoyé': {
+        bg: 'bg-blue-100 dark:bg-blue-500/20',
+        text: 'text-blue-800 dark:text-blue-300',
+        icon: <ArrowDownTrayIcon className="h-3.5 w-3.5 mr-1" />
+      },
+      'accepté': {
+        bg: 'bg-green-100 dark:bg-green-500/20',
+        text: 'text-green-800 dark:text-green-300',
+        icon: <CheckCircleIcon className="h-3.5 w-3.5 mr-1" />
+      },
+      'refusé': {
+        bg: 'bg-red-100 dark:bg-red-500/20',
+        text: 'text-red-800 dark:text-red-300',
+        icon: <XCircleIcon className="h-3.5 w-3.5 mr-1" />
+      },
+      'en_attente': {
+        bg: 'bg-yellow-100 dark:bg-yellow-500/20',
+        text: 'text-yellow-800 dark:text-yellow-300',
+        icon: <ClockIcon className="h-3.5 w-3.5 mr-1" />
+      },
     };
 
-    const defaultClass = 'bg-gray-100 text-gray-800';
-    const statusClass = statusClasses[status.toLowerCase()] || defaultClass;
+    const defaultConfig = {
+      bg: 'bg-neutral-100 dark:bg-neutral-700/50',
+      text: 'text-neutral-800 dark:text-neutral-200',
+      icon: <DocumentTextIcon className="h-3.5 w-3.5 mr-1" />
+    };
+
+    const { bg, text, icon } = statusConfig[status.toLowerCase()] || defaultConfig;
     const displayStatus = status.charAt(0).toUpperCase() + status.slice(1);
 
     return (
-      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}`}>
+      <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${bg} ${text}`}>
+        {icon}
         {displayStatus}
-      </span>
+      </div>
     );
   };
 
@@ -206,8 +225,8 @@ const ClientQuotesPage: React.FC = () => {
         };
 
         const processedQuotes = quotesData
-          .map((quote: any, index: number) => processQuote(quote, index))
-          .filter((quote): quote is Quote => quote !== null);
+          .map((quote: Quote, index: number) => processQuote(quote, index))
+          .filter((quote: Quote | null): quote is Quote => quote !== null);
 
         setQuotes(processedQuotes);
         setIsLoading(false);
@@ -227,66 +246,229 @@ const ClientQuotesPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div>Chargement...</div>;
+    return (
+      <div className="flex justify-center items-center h-96">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
   }
+
   if (error) {
-    return <div>Erreur : {error}</div>;
+    return (
+      <div className="p-6">
+        <div className="bg-status-error/10 border border-status-error/30 rounded-lg p-4">
+          <div className="flex">
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-status-error dark:text-status-error-light">Erreur</h3>
+              <div className="mt-1 text-sm text-status-error/90 dark:text-status-error-light/90">
+                {error}
+              </div>
+              <div className="mt-3">
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-3.5 py-1.5 text-sm font-medium text-white bg-status-error hover:bg-status-error/90 rounded-lg focus:outline-none focus:ring-2 focus:ring-status-error/30 focus:ring-offset-1 transition-colors"
+                >
+                  Réessayer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
+
   if (quotes.length === 0) {
-    return <div>Aucun devis trouvé.</div>;
+    return (
+      <div className="px-4 py-6 sm:px-6 lg:px-8">
+        <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-700/50 p-8 text-center">
+          <DocumentTextIcon className="mx-auto h-12 w-12 text-neutral-400" />
+          <h3 className="mt-2 text-sm font-medium text-neutral-900 dark:text-white">Aucun devis</h3>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            Aucun devis n'a été trouvé pour ce client.
+          </p>
+          <div className="mt-6">
+            <Link
+              to={`/quotes/new?clientId=${clientId}`}
+              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/50"
+            >
+              <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
+              Nouveau devis
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen p-6">
-      <div className="flex items-center mb-6">
-        <button onClick={handleBack} className="flex items-center text-gray-300 hover:text-white mr-4">
-          <ArrowLeftIcon className="h-5 w-5 mr-1" /> Retour
-        </button>
-        <h1 className="text-2xl font-bold">Devis pour {clientName}</h1>
+    <div className="px-4 py-6 sm:px-6 lg:px-8">
+      {/* Header */}
+      <div className="sm:flex sm:items-center justify-between mb-6">
+        <div className="flex items-center">
+          <button
+            onClick={handleBack}
+            className="mr-4 p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+          >
+            <ArrowLeftIcon className="h-5 w-5 text-neutral-600 dark:text-neutral-300" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">
+              Devis pour {clientName}
+            </h1>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+              Liste des devis pour ce client
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 sm:mt-0">
+          <Link
+            to={`/quotes/new?clientId=${clientId}`}
+            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/50"
+          >
+            <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
+            Nouveau devis
+          </Link>
+        </div>
       </div>
 
-      <div className="bg-gray-800 rounded-lg shadow-lg p-6">
+      {/* Stats Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700/50 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total</p>
+              <p className="text-2xl font-semibold text-neutral-900 dark:text-white">
+                {quotes.length}
+              </p>
+            </div>
+            <div className="bg-blue-100 dark:bg-blue-500/20 p-2 rounded-lg">
+              <DocumentTextIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700/50 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Acceptés</p>
+              <p className="text-2xl font-semibold text-green-600 dark:text-green-400">
+                {quotes.filter(q => q.statut.toLowerCase() === 'accepté').length}
+              </p>
+            </div>
+            <div className="bg-green-100 dark:bg-green-500/20 p-2 rounded-lg">
+              <CheckCircleIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700/50 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">En attente</p>
+              <p className="text-2xl font-semibold text-yellow-600 dark:text-yellow-400">
+                {quotes.filter(q => q.statut.toLowerCase() === 'en_attente' || q.statut.toLowerCase() === 'envoyé').length}
+              </p>
+            </div>
+            <div className="bg-yellow-100 dark:bg-yellow-500/20 p-2 rounded-lg">
+              <ClockIcon className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700/50 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">CA Total</p>
+              <p className="text-2xl font-semibold text-purple-600 dark:text-purple-400">
+                {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MAD' })
+                  .format(quotes.reduce((sum, q) => sum + (q.total_ttc || 0), 0))}
+              </p>
+            </div>
+            <div className="bg-purple-100 dark:bg-purple-500/20 p-2 rounded-lg">
+              <CurrencyEuroIcon className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quotes Table */}
+      <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-700/50 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-700">
-            <thead>
+          <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
+            <thead className="bg-neutral-50 dark:bg-neutral-700/30">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Référence</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Produits</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Total HT</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Total TTC (TVA incluse)</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Statut</th>
+                <th scope="col" className="px-6 py-3.5 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                  Référence
+                </th>
+                <th scope="col" className="px-6 py-3.5 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                  Date
+                </th>
+                <th scope="col" className="px-6 py-3.5 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                  Montant
+                </th>
+                <th scope="col" className="px-6 py-3.5 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                  Statut
+                </th>
+                <th scope="col" className="relative px-6 py-3.5">
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-700">
+            <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700/50">
               {quotes.map((quote) => (
-                <tr key={quote.id} className="hover:bg-gray-700/50">
-                  <td className="px-6 py-4 text-sm font-medium">{quote.reference}</td>
-                  <td className="px-6 py-4 text-sm">{formatDate(quote.date)}</td>
-                  <td className="px-6 py-4 text-sm">
-                    {quote.items?.map((item, idx) => (
-                      <div key={`${quote.id}-item-${idx}`}>
-                        {item.produit_nom} ({item.quantite} × {item.prix_unitaire} MAD)
-                      </div>
-                    ))}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MAD' }).format(quote.total_ht)}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <div className="flex flex-col items-end">
-                      <div className="text-xs text-gray-400">
-                        HT: {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MAD' }).format(quote.total_ht)}
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        + TVA ({quote.tva}%): {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MAD' }).format(quote.tva_amount)}
-                      </div>
-                      <div className="text-sm font-medium text-white border-t border-gray-600 pt-1 mt-1">
-                        = {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MAD' }).format(quote.total_ttc || 0)}
-                      </div>
+                <tr key={quote.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700/30 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-neutral-900 dark:text-white">
+                      {quote.reference}
+                    </div>
+                    <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                      {quote.items?.length || 0} articles
                     </div>
                   </td>
-                  <td className="px-6 py-4">{getStatusBadge(quote.statut)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-neutral-900 dark:text-white">
+                      {formatDate(quote.date)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-neutral-900 dark:text-white text-right">
+                      {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MAD' })
+                        .format(quote.total_ttc || 0)}
+                    </div>
+                    <div className="text-xs text-neutral-500 dark:text-neutral-400 text-right">
+                      HT: {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MAD' })
+                        .format(quote.total_ht)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {getStatusBadge(quote.statut)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex items-center justify-end space-x-2">
+                      <button
+                        onClick={() => navigate(`/quotes/edit/${quote.id}`)}
+                        className="text-neutral-400 hover:text-blue-500 transition-colors p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                        title="Modifier"
+                      >
+                        <PencilIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => window.print()}
+                        className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                        title="Imprimer"
+                      >
+                        <PrinterIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => {}}
+                        className="text-neutral-400 hover:text-green-500 transition-colors p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                        title="Télécharger"
+                      >
+                        <ArrowDownTrayIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

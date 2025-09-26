@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { productsAPI } from '../../services/api';
-import type { Product } from '../../types';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 interface ProductFormData {
@@ -125,118 +124,148 @@ const ProductForm: React.FC = () => {
   if (loading && isEdit) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-accent"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="px-4 py-6 sm:px-0">
+    <div className="px-4 py-6 sm:px-6 lg:px-8">
       <div className="mb-6">
         <button
           onClick={() => navigate('/products')}
-          className="inline-flex items-center text-accent hover:text-accent/80 transition-colors"
+          className="inline-flex items-center text-sm font-medium text-primary hover:text-primary/80 transition-colors"
         >
           <ArrowLeftIcon className="h-4 w-4 mr-2" />
-          Back to Products
+          Retour aux produits
         </button>
       </div>
 
-      <div className="bg-secondary rounded-lg shadow-lg p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-white">
+      <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-700/50 overflow-hidden">
+        <div className="px-6 py-5 border-b border-neutral-200 dark:border-neutral-700/50">
+          <h1 className="text-xl font-semibold text-neutral-900 dark:text-white">
             {isEdit ? 'Modifier le produit' : 'Nouveau produit'}
           </h1>
-          <p className="mt-2 text-sm text-gray-300">
-            {isEdit ? 'Mettre à jour les informations du produit' : 'Ajouter un nouveau produit au catalogue'}
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            {isEdit ? 'Mettez à jour les informations du produit' : 'Ajoutez un nouveau produit à votre catalogue'}
           </p>
         </div>
 
-        {error && (
-          <div className="mb-6 bg-red-900/20 border border-red-500 rounded-lg p-4">
-            <div className="text-sm text-red-300">{error}</div>
-          </div>
-        )}
+        <div className="p-6">
+          {error && (
+            <div className="mb-6 bg-status-error/10 border border-status-error/30 rounded-lg p-4">
+              <div className="text-sm text-status-error dark:text-status-error-light">{error}</div>
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="nom" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="nom" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
                 Nom du produit *
               </label>
-              <input
-                type="text"
-                id="nom"
-                name="nom"
-                value={formData.nom}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
-                  validationErrors.nom ? 'border-red-500' : 'border-gray-600'
-                }`}
-                placeholder="Entrez le nom du produit"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  id="nom"
+                  name="nom"
+                  value={formData.nom}
+                  onChange={handleChange}
+                  className={`w-full px-3.5 py-2.5 bg-white dark:bg-neutral-700/50 border rounded-lg text-sm text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors ${
+                    validationErrors.nom ? 'border-status-error' : 'border-neutral-300 dark:border-neutral-600'
+                  }`}
+                  placeholder="Entrez le nom du produit"
+                />
+              </div>
               {validationErrors.nom && (
-                <p className="mt-1 text-sm text-red-400">{validationErrors.nom}</p>
+                <p className="mt-1.5 text-sm text-status-error dark:text-status-error-light">
+                  {validationErrors.nom}
+                </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="unite" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="unite" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
                 Unité *
               </label>
-              <select
-                id="unite"
-                name="unite"
-                value={formData.unite}
-                onChange={handleChange}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors"
-              >
-                <option value="m2">m²</option>
-                <option value="m3">m³</option>
-              </select>
+              <div className="relative">
+                <select
+                  id="unite"
+                  name="unite"
+                  value={formData.unite}
+                  onChange={handleChange}
+                  className={`w-full px-3.5 py-2.5 bg-white dark:bg-neutral-700/50 border rounded-lg text-sm text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors ${
+                    validationErrors.unite ? 'border-status-error' : 'border-neutral-300 dark:border-neutral-600'
+                  }`}
+                >
+                  <option value="m2" className="text-neutral-900 dark:text-white">m²</option>
+                  <option value="m3" className="text-neutral-900 dark:text-white">m³</option>
+                </select>
+              </div>
+              {validationErrors.unite && (
+                <p className="mt-1.5 text-sm text-status-error dark:text-status-error-light">
+                  {validationErrors.unite}
+                </p>
+              )}
             </div>
           </div>
 
           <div>
-            <label htmlFor="categorie" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="categorie" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
               Catégorie *
             </label>
-            <select
-              id="categorie"
-              name="categorie"
-              value={formData.categorie}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors ${
-                validationErrors.categorie ? 'border-red-500' : 'border-gray-600'
-              }`}
-            >
-              <option value="Marbre">Marbre</option>
-              <option value="Carrelage">Carrelage</option>
-              <option value="Autre">Autre</option>
-            </select>
+            <div className="relative">
+              <select
+                id="categorie"
+                name="categorie"
+                value={formData.categorie}
+                onChange={handleChange}
+                className={`w-full px-3.5 py-2.5 bg-white dark:bg-neutral-700/50 border rounded-lg text-sm text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors ${
+                  validationErrors.categorie ? 'border-status-error' : 'border-neutral-300 dark:border-neutral-600'
+                }`}
+              >
+                <option value="Marbre" className="text-neutral-900 dark:text-white">Marbre</option>
+                <option value="Carrelage" className="text-neutral-900 dark:text-white">Carrelage</option>
+                <option value="Autre" className="text-neutral-900 dark:text-white">Autre</option>
+              </select>
+            </div>
             {validationErrors.categorie && (
-              <p className="mt-1 text-sm text-red-400">{validationErrors.categorie}</p>
+              <p className="mt-1.5 text-sm text-status-error dark:text-status-error-light">
+                {validationErrors.categorie}
+              </p>
             )}
           </div>
 
-          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-600">
+          <div className="flex items-center justify-end space-x-3 pt-6 border-t border-neutral-200 dark:border-neutral-700/50">
             <button
               type="button"
               onClick={() => navigate('/products')}
-              className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+              className="px-4 py-2.5 text-sm font-medium text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-1 transition-colors"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-primary rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              style={{ backgroundColor: '#D7FEFA' }}
+              className="px-5 py-2.5 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-1 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200 inline-flex items-center shadow-sm hover:shadow-md"
             >
-              {loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour' : 'Créer le produit'}
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Enregistrement...
+                </>
+              ) : isEdit ? (
+                'Mettre à jour le produit'
+              ) : (
+                'Créer le produit'
+              )}
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
