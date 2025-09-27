@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { clientsAPI, quotesAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -38,44 +38,55 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    const fetchStats = async (showLoading = true) => {
-      try {
-        if (showLoading) setLoading(true);
-        setRefreshing(true);
-        
-        const [clientsRes, quotesRes] = await Promise.all([
-          clientsAPI.getAll(),
-          quotesAPI.getAll(),
-        ]);
+  const fetchStats = useCallback(async (showLoading = true) => {
+    try {
+      if (showLoading) setLoading(true);
+      setRefreshing(true);
+      
+      const [clientsRes, quotesRes] = await Promise.all([
+        clientsAPI.getAll(),
+        quotesAPI.getAll(),
+      ]);
 
-        const quotes = quotesRes.data.data;
-        const approvedQuotes = quotes.filter((q: any) => q.statut === 'accepted').length;
-        const pendingQuotes = quotes.filter((q: any) => q.statut === 'sent' || q.statut === 'draft').length;
-        const rejectedQuotes = quotes.filter((q: any) => q.statut === 'refused').length;
-        
-        const totalRevenue = quotes
-          .filter((q: any) => q.statut === 'accepted')
-          .reduce((sum: number, quote: any) => sum + parseFloat(quote.total_ttc || 0), 0);
+      const quotes = quotesRes.data.data;
+      console.log('All quotes:', quotes); // Debug log
+      
+      // Log unique status values to help with debugging
+      const statusValues = [...new Set(quotes.map((q: any) => q.statut))];
+      console.log('Unique status values in quotes:', statusValues);
+      
+      const approvedQuotes = quotes.filter((q: any) => q.statut === 'accepte').length;
+      const pendingQuotes = quotes.filter((q: any) => q.statut === 'envoye' || q.statut === 'brouillon').length;
+      const rejectedQuotes = quotes.filter((q: any) => q.statut === 'refuse').length;
+      
+      const acceptedOrPaidQuotes = quotes.filter((q: any) => q.statut === 'accepte' || q.statut === 'paye');
+      console.log('Accepted/Paid quotes:', acceptedOrPaidQuotes); // Debug log
+      
+      const totalRevenue = acceptedOrPaidQuotes
+        .reduce((sum: number, quote: any) => {
+          console.log('Processing quote:', quote.id, 'statut:', quote.statut, 'total_ttc:', quote.total_ttc); // Debug log
+          return sum + parseFloat(quote.total_ttc || 0);
+        }, 0);
 
-        setStats({
-          totalQuotes: quotes.length,
-          approvedQuotes,
-          pendingQuotes,
-          rejectedQuotes,
-          totalRevenue,
-          totalClients: clientsRes.data.total || 0,
-        });
-      } catch (error) {
-        console.error('Error fetching dashboard stats:', error);
-      } finally {
-        if (showLoading) setLoading(false);
-        setRefreshing(false);
-      }
-    };
-
-    fetchStats();
+      setStats({
+        totalQuotes: quotes.length,
+        approvedQuotes,
+        pendingQuotes,
+        rejectedQuotes,
+        totalRevenue,
+        totalClients: clientsRes.data.total || 0,
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    } finally {
+      if (showLoading) setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   const statCards = [
     {
@@ -84,8 +95,6 @@ const Dashboard: React.FC = () => {
       icon: DocumentTextIcon,
       color: 'bg-blue-100 dark:bg-blue-500/20',
       iconColor: 'text-blue-600 dark:text-blue-400',
-      trend: 'up',
-      change: '12%',
     },
     {
       name: 'Approuvés',
@@ -93,8 +102,6 @@ const Dashboard: React.FC = () => {
       icon: CheckCircleIcon,
       color: 'bg-green-100 dark:bg-green-500/20',
       iconColor: 'text-green-600 dark:text-green-400',
-      trend: 'up',
-      change: '5%',
     },
     {
       name: 'En Attente',
@@ -102,8 +109,6 @@ const Dashboard: React.FC = () => {
       icon: ClockIcon,
       color: 'bg-yellow-100 dark:bg-yellow-500/20',
       iconColor: 'text-yellow-600 dark:text-yellow-400',
-      trend: 'down',
-      change: '3%',
     },
     {
       name: 'Rejetés',
@@ -111,8 +116,6 @@ const Dashboard: React.FC = () => {
       icon: XCircleIcon,
       color: 'bg-red-100 dark:bg-red-500/20',
       iconColor: 'text-red-600 dark:text-red-400',
-      trend: 'down',
-      change: '2%',
     },
   ];
 
@@ -159,22 +162,6 @@ const Dashboard: React.FC = () => {
                   <p className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-white">
                     {card.value.toLocaleString()}
                   </p>
-                  {card.trend && (
-                    <span className={`inline-flex items-center mt-1.5 text-xs font-medium ${
-                      card.trend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                    }`}>
-                      {card.trend === 'up' ? (
-                        <svg className="h-3.5 w-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
-                        </svg>
-                      ) : (
-                        <svg className="h-3.5 w-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1v-5a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586l-4.293-4.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                      {card.change} vs mois dernier
-                    </span>
-                  )}
                 </div>
                 <div className={`${card.color} p-2.5 rounded-lg`}>
                   <Icon className={`h-5 w-5 ${card.iconColor}`} />
